@@ -8,6 +8,7 @@
 #define	HEADER_fileio_h_
 
 #include	"defs.h"
+#include	<stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -56,17 +57,17 @@ extern int filetestend(fileinfo *file);
  * from the current position in the given file. For the multi-byte
  * values, the value is assumed to be stored in little-endian.
  */
-extern int filereadint8(fileinfo *file, unsigned char *val8,
+extern int filereadint8(fileinfo *file, uint8_t *val8,
 			char const *msg);
-extern int filewriteint8(fileinfo *file, unsigned char val8,
+extern int filewriteint8(fileinfo *file, uint8_t val8,
 			 char const *msg);
-extern int filereadint16(fileinfo *file, unsigned short *val16,
+extern int filereadint16(fileinfo *file, uint16_t *val16,
 			 char const *msg);
-extern int filewriteint16(fileinfo *file, unsigned short val16,
+extern int filewriteint16(fileinfo *file, uint16_t val16,
 			  char const *msg);
-extern int filereadint32(fileinfo *file, unsigned long *val32,
+extern int filereadint32(fileinfo *file, uint32_t *val32,
 			 char const *msg);
-extern int filewriteint32(fileinfo *file, unsigned long val32,
+extern int filewriteint32(fileinfo *file, uint32_t val32,
 			  char const *msg);
 
 /* Read size bytes from the given file and return the bytes in a

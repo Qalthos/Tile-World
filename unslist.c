@@ -22,7 +22,7 @@ typedef	struct unslistentry {
     int			setid;		/* the ID of the level set's name */
     int			levelnum;	/* the level's number */
     int			size;		/* the levels data's compressed size */
-    unsigned long	hashval;	/* the levels data's hash value */
+    uint32_t		hashval;	/* the levels data's hash value */
     int			note;		/* the entry's annotation ID, if any */
 } unslistentry;
 
@@ -112,7 +112,7 @@ static int lookupsetname(char const *name, int add)
 /* Add a new entry with the given data to the list.
  */
 static int addtounslist(int setid, int levelnum,
-			int size, unsigned long hashval, int note)
+			int size, uint32_t hashval, int note)
 {
     if (listcount == listallocated) {
 	listallocated = listallocated ? listallocated * 2 : 16;
@@ -152,8 +152,10 @@ static int readunslist(fileinfo *file)
 {
     char		buf[256], token[256];
     char const	       *p;
-    unsigned long	hashval;
-    int			setid, size;
+    uint32_t		hashval;
+    unsigned long	hashval_long;
+    int			setid;
+    unsigned int	size;
     int			lineno, levelnum, n;
 
     setid = 0;
@@ -169,7 +171,8 @@ static int readunslist(fileinfo *file)
 	    continue;
 	}
 	n = sscanf(p, "%d: %04X%08lX: %[^\n\r]",
-		      &levelnum, &size, &hashval, token);
+		      &levelnum, &size, &hashval_long, token);
+	hashval = (uint32_t)hashval_long;
 	if (n > 0 && levelnum > 0 && levelnum < 65536 && setid) {
 	    if (n == 1) {
 		n = sscanf(p, "%*d: %s", token);

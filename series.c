@@ -47,9 +47,9 @@ char	       *seriesdatdir = NULL;
 
 /* Calculate a hash value for the given block of data.
  */
-static unsigned long hashvalue(unsigned char const *data, unsigned int size)
+static uint32_t hashvalue(unsigned char const *data, unsigned int size)
 {
-    static unsigned long remainders[256] = {
+    static uint32_t remainders[256] = {
 	0x00000000, 0x04C11DB7, 0x09823B6E, 0x0D4326D9, 0x130476DC, 0x17C56B6B,
 	0x1A864DB2, 0x1E475005, 0x2608EDB8, 0x22C9F00F, 0x2F8AD6D6, 0x2B4BCB61,
 	0x350C9B64, 0x31CD86D3, 0x3C8EA00A, 0x384FBDBD, 0x4C11DB70, 0x48D0C6C7,
@@ -95,7 +95,7 @@ static unsigned long hashvalue(unsigned char const *data, unsigned int size)
 	0xBCB4666D, 0xB8757BDA, 0xB5365D03, 0xB1F740B4
     };
 
-    unsigned long	accum;
+    uint32_t		accum;
     unsigned int	i, j;
 
     for (j = 0, accum = 0xFFFFFFFFUL ; j < size ; ++j) {
@@ -114,7 +114,7 @@ static unsigned long hashvalue(unsigned char const *data, unsigned int size)
  */
 static int readseriesheader(gameseries *series)
 {
-    unsigned short	val16;
+    uint16_t		val16;
     int			ruleset;
 
     if (!filereadint16(&series->mapfile, &val16, "not a valid data file"))
@@ -150,7 +150,7 @@ static int readleveldata(fileinfo *file, gamesetup *game)
 {
     unsigned char	       *data;
     unsigned char const	       *dataend;
-    unsigned short		size;
+    uint16_t			size;
     int				n;
 
     if (!filereadint16(file, &size, NULL))
@@ -452,7 +452,7 @@ static int getseriesfile(char *filename, void *data)
     fileinfo		file;
     seriesdata	       *sdata = (seriesdata*)data;
     gameseries	       *series;
-    unsigned long	magic;
+    uint32_t		magic;
     char	       *datfilename;
     int			config, f;
 

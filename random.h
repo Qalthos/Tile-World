@@ -19,7 +19,7 @@ extern void resetprng(prng *gen);
 
 /* Restart an existing PRNG upon a predetermined sequence.
  */
-extern void restartprng(prng *gen, unsigned long initial);
+extern void restartprng(prng *gen, uint32_t initial);
 
 /* Retrieve the original seed value of the current sequence.
  */

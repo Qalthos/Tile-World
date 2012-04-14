@@ -351,7 +351,7 @@ int filewrite(fileinfo *file, void const *data, unsigned long size,
 
 /* Read one byte as an unsigned integer value.
  */
-int filereadint8(fileinfo *file, unsigned char *val8, char const *msg)
+int filereadint8(fileinfo *file, uint8_t *val8, char const *msg)
 {
     int	byte;
 
@@ -364,7 +364,7 @@ int filereadint8(fileinfo *file, unsigned char *val8, char const *msg)
 
 /* Write one byte as an unsigned integer value.
  */
-int filewriteint8(fileinfo *file, unsigned char val8, char const *msg)
+int filewriteint8(fileinfo *file, uint8_t val8, char const *msg)
 {
     errno = 0;
     if (fputc(val8, file->fp) != EOF)
@@ -374,7 +374,7 @@ int filewriteint8(fileinfo *file, unsigned char val8, char const *msg)
 
 /* Read two bytes as an unsigned integer value stored in little-endian.
  */
-int filereadint16(fileinfo *file, unsigned short *val16, char const *msg)
+int filereadint16(fileinfo *file, uint16_t *val16, char const *msg)
 {
     int	byte;
 
@@ -391,7 +391,7 @@ int filereadint16(fileinfo *file, unsigned short *val16, char const *msg)
 
 /* Write two bytes as an unsigned integer value in little-endian.
  */
-int filewriteint16(fileinfo *file, unsigned short val16, char const *msg)
+int filewriteint16(fileinfo *file, uint16_t val16, char const *msg)
 {
     errno = 0;
     if (fputc(val16 & 0xFF, file->fp) != EOF
@@ -402,7 +402,7 @@ int filewriteint16(fileinfo *file, unsigned short val16, char const *msg)
 
 /* Read four bytes as an unsigned integer value stored in little-endian.
  */
-int filereadint32(fileinfo *file, unsigned long *val32, char const *msg)
+int filereadint32(fileinfo *file, uint32_t *val32, char const *msg)
 {
     int	byte;
 
@@ -425,7 +425,7 @@ int filereadint32(fileinfo *file, unsigned long *val32, char const *msg)
 
 /* Write four bytes as an unsigned integer value in little-endian.
  */
-int filewriteint32(fileinfo *file, unsigned long val32, char const *msg)
+int filewriteint32(fileinfo *file, uint32_t val32, char const *msg)
 {
     errno = 0;
     if (fputc(val32 & 0xFF, file->fp) != EOF

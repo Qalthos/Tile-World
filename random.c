@@ -24,12 +24,12 @@
 /* The most recently generated random number is stashed here, so that
  * it can provide the initial seed of the next PRNG.
  */
-static unsigned long	lastvalue = 0x80000000UL;
+static uint32_t	lastvalue = 0x80000000UL;
 
 /* The standard linear congruential random-number generator needs no
  * introduction.
  */
-static unsigned long nextvalue(unsigned long value)
+static uint32_t nextvalue(uint32_t value)
 {
     return ((value * 1103515245UL) + 12345UL) & 0x7FFFFFFFUL;
 }
@@ -67,7 +67,7 @@ void resetprng(prng *gen)
 
 /* Reset a PRNG to an independent sequence.
  */
-void restartprng(prng *gen, unsigned long seed)
+void restartprng(prng *gen, uint32_t seed)
 {
     gen->value = gen->initial = seed & 0x7FFFFFFFUL;
     gen->shared = FALSE;

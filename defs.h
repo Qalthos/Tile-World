@@ -8,6 +8,7 @@
 #define	HEADER_defs_h_
 
 #include	<stdio.h>
+#include	<stdint.h>
 #include	<time.h>
 #include	"gen.h"
 
@@ -35,8 +36,8 @@ typedef	struct fileinfo {
 /* Pseudorandom number generators.
  */
 typedef	struct prng {
-    unsigned long	initial;	/* initial seed value */
-    unsigned long	value;		/* latest random value */
+    uint32_t		initial;	/* initial seed value */
+    uint32_t		value;		/* latest random value */
     char		shared;		/* FALSE if independent sequence */
 } prng;
 
@@ -187,7 +188,7 @@ typedef	struct gamesetup {
     int			solutionsize;	/* size of the saved solution data */
     unsigned char      *leveldata;	/* the data defining the level */
     unsigned char      *solutiondata;	/* the player's best solution so far */
-    unsigned long	levelhash;	/* the level data's hash value */
+    uint32_t		levelhash;	/* the level data's hash value */
     char const	       *unsolvable;	/* why level is unsolvable, or NULL */
     char		name[256];	/* name of the level */
     char		passwd[256];	/* the level's password */

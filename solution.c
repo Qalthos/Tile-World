@@ -8,6 +8,7 @@
 #include	<stdlib.h>
 #include	<string.h>
 #include	<ctype.h>
+#include	<stdint.h>
 #include	"defs.h"
 #include	"err.h"
 #include	"fileio.h"
@@ -215,9 +216,9 @@ void destroymovelist(actlist *list)
 static int readsolutionheader(fileinfo *file, int ruleset, int *flags,
 			      int *extrasize, unsigned char *extra)
 {
-    unsigned long	sig;
-    unsigned short	f;
-    unsigned char	n;
+    uint32_t		sig;
+    uint16_t		f;
+    uint8_t		n;
 
     if (!filereadint32(file, &sig, "not a valid solution file"))
 	return FALSE;
@@ -474,7 +475,7 @@ int contractsolution(solutioninfo const *solution, gamesetup *game)
  */
 static int readsolution(fileinfo *file, gamesetup *game)
 {
-    unsigned long	size;
+    uint32_t		size;
 
     game->number = 0;
     game->sgflags = 0;
@@ -704,8 +705,8 @@ void clearsolutions(gameseries *series)
 int loadsolutionsetname(char const *filename, char *buffer)
 {
     fileinfo		file;
-    unsigned long	dwrd;
-    unsigned short	word;
+    uint32_t		dwrd;
+    uint16_t		word;
     int			size;
 
     clearfileinfo(&file);
