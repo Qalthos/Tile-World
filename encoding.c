@@ -82,7 +82,7 @@ static int const fileids[] = {
 /* 35 burned Chip		*/	Bombed_Chip,
 /* 36 not used			*/	HiddenWall_Perm,
 /* 37 not used			*/	HiddenWall_Perm,
-/* 38 not used			*/	HiddenWall_Perm,
+/* 38 not used/ice block	*/	IceBlock_Static,
 /* 39 Chip in exit		*/	Exited_Chip,
 /* 3A exit - end game		*/	Exit_Extra_1,
 /* 3B exit - end game		*/	Exit_Extra_2,

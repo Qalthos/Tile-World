@@ -128,6 +128,7 @@ static tileidinfo const tileidmap[NTILES] = {
     { Boots_Fire,		 6,  9,  9,  9, TILEIMG_TRANSPCELS },
     { Boots_Water,		 6,  8,  9,  8, TILEIMG_TRANSPCELS },
     { Block_Static,		 0, 10, -1, -1, TILEIMG_IMPLICIT },
+    { IceBlock_Static,		 3,  8, -1, -1, TILEIMG_IMPLICIT },
     { Overlay_Buffer,		 2,  0, -1, -1, TILEIMG_IMPLICIT },
     { Exit_Extra_1,		 3, 10, -1, -1, TILEIMG_SINGLEOPAQUE },
     { Exit_Extra_2,		 3, 11, -1, -1, TILEIMG_SINGLEOPAQUE },
@@ -151,6 +152,10 @@ static tileidinfo const tileidmap[NTILES] = {
     { Block _WEST,		 0, 15, -1, -1, TILEIMG_IMPLICIT },
     { Block _SOUTH,		 1,  0, -1, -1, TILEIMG_IMPLICIT },
     { Block _EAST,		 1,  1, -1, -1, TILEIMG_IMPLICIT },
+    { IceBlock _NORTH,		 3,  8, -1, -1, TILEIMG_CREATURE },
+    { IceBlock _WEST,		 3,  8, -1, -1, TILEIMG_IMPLICIT },
+    { IceBlock _SOUTH,		 3,  8, -1, -1, TILEIMG_IMPLICIT },
+    { IceBlock _EAST,		 3,  8, -1, -1, TILEIMG_IMPLICIT },
     { Tank _NORTH,		 4, 12,  7, 12, TILEIMG_CREATURE },
     { Tank _WEST,		 4, 13,  7, 13, TILEIMG_IMPLICIT },
     { Tank _SOUTH,		 4, 14,  7, 14, TILEIMG_IMPLICIT },
@@ -1089,6 +1094,9 @@ static int initlargetileset(TW_Surface *tiles)
     tileptr[Block_Static].celcount = 1;
     tileptr[Block_Static].opaque[0] = tileptr[Block].transp[0];
     tileptr[Block_Static].transp[0] = NULL;
+    tileptr[IceBlock_Static].celcount = 1;
+    tileptr[IceBlock_Static].opaque[0] = tileptr[IceBlock].transp[0];
+    tileptr[IceBlock_Static].transp[0] = NULL;
     tileptr[HiddenWall_Perm] = tileptr[Empty];
     tileptr[HiddenWall_Temp] = tileptr[Empty];
     tileptr[BlueWall_Fake] = tileptr[BlueWall_Real];

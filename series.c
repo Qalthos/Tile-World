@@ -22,6 +22,7 @@
 
 #define	SIG_DATFILE_MS		0x0002
 #define	SIG_DATFILE_LYNX	0x0102
+#define	SIG_DATFILE_PG		0x0003
 
 /* The "signature bytes" of the configuration files.
  */
@@ -126,6 +127,7 @@ static int readseriesheader(gameseries *series)
     switch (val16) {
       case SIG_DATFILE_MS:	ruleset = Ruleset_MS;		break;
       case SIG_DATFILE_LYNX:	ruleset = Ruleset_Lynx;		break;
+      case SIG_DATFILE_PG:	ruleset = Ruleset_MS;		break;
       default:
 	fileerr(&series->mapfile, "data file uses an unrecognized ruleset");
 	return FALSE;
