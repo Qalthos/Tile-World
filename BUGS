@@ -1,0 +1,51 @@
+Contents
+
+* Bugs in the MS game logic emulation
+* Bugs in the Lynx game logic emulation
+* Other bugs and misfeatures
+___________________________________________________________________________
+
+Bugs in the MS game logic emulation
+
+* There are numerous situations in the MS game that cause a moused goal to
+  be cancelled for which TW will keep trying. A clearer understanding of
+  those situations is needed.
+* The MS game checks for input more than once per tick. Probably this was
+  done to catch last-minute keyboard events, but it has the effect that by
+  having more than one input event in the queue, Chip can, under certain
+  circumstances, have the latter keystroke processed after he has moved but
+  before any other creatures move.
+* In TW, the keyboard is scanned twice per tick, once at the beginning and
+  once in the middle. As a result, if Chip makes a move at the beginning of
+  a tick, the game does not update the display twice in a row (once after
+  the creatures move and once after Chip moves), but just does it once. I
+  do not believe that this optimization has a real effect on the gameplay.
+  It does, however, make it easier to examine the screen when pushing
+  against a force floor.
+* There are a number of miscellaneous emulation bugs, mostly involving
+  "illegal" tile combinations. These are documented more thoroughly in the
+  msbugs.txt file on the website.
+___________________________________________________________________________
+
+Bugs in the Lynx game logic emulation
+
+* Under the real Lynx game it is possible to push a block diagonally
+  without moving at all. This is done by pushing against a wall, and then
+  pushing diagonally against a neighboring block very briefly. The block
+  will get pushed, but Chip doesn't follow. This is impossible to do in TW.
+* Under the real Lynx game it is possible, with carefully constructed
+  circumstances, for Chip to push a block away from him as it's heading
+  towards him. That is, a block starts moving into the square that Chip
+  occupies, but in the same frame, Chip starts pushing the block in the
+  opposite direction. This is impossible to do in TW.
+* There are a number of miscellaneous emulation bugs, mostly involving Chip
+  being stuck on teleports. These are documented more thoroughly in the
+  lxbugs.txt file on the website.
+___________________________________________________________________________
+
+Other bugs and misfeatures
+
+* TW ignores field 8 entries in the .dat file unless they are exactly five
+  bytes long. In this case, it simply ignores the field 6 password. The MS
+  game will remember both passwords and allow either one to be used
+  (although if both are present it will only show the field 8 password).

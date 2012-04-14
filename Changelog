@@ -1,0 +1,403 @@
+2010 Dec 22: version 2.0.0
+* First public release of Tile World 2 featuring numerous improvements.
+
+2006 Apr 17: version 1.3.0
+* Added mouse handling to the code. That includes modifying the SDL code to
+  handle mouse activity, adding a large set of new commands, making it
+  possible for Chip to move towards a goal over several ticks, and
+  modifying the action struct (and the solution file) to permit storing the
+  new moves in solutions.
+* Added the database of unsolvable levels, which warns users before they
+  play a level known to be unsolvable, and automatically gives them the
+  password to the next level.
+* Added the solution file display, allowing the user to manage multiple
+  solution files for a single level set.
+* Changed code to accept a solution file as the sole cmdline argument, if
+  the solution file contains the set name. Hopefully this, and the previous
+  addition, will make it easier for people to share solution files.
+* Added the batch-mode verification feature, to check the existing
+  solutions without initializing the GUI subsystem.
+* Fixed the old emulation bug (MS logic) involving Chip turning a cloned
+  block into a clone of himself while going through a teleport.
+* Fixed the bug (MS logic) preventing Chip from pushing a slipping block
+  parallel to its slipping direction when the push happens through a
+  teleport.
+* Improved the emulation of several creatures teleporting simultaneously
+  (Lynx logic), with assistance from ccexplore.
+* Minor improvements to the Lynx pedantic mode.
+* Fixed the password input routine. (It was completely broken; not sure
+  when that happened.)
+* Rewrote the code so that level data and solutions are kept compressed in
+  memory, and expanded only when needed, instead of decoding entire files
+  when read. This change makes for a small reduction in memory usage, and
+  reduces the overall level of useless work being done.
+* Added code to shutter the map view when MS gameplay is paused.
+* Numerous minor tweaks to the code, the display, and the documentation.
+
+2006 Feb 24: version 1.2.2
+* Finally got the handling of brown buttons (MS logic) working correctly.
+  It's been a long time coming, and it's all so simple in hindsight.
+* Added code to grok the new solution file format. This version of Tile
+  World will continue to use the old solution file format, but if it
+  encounters a file in the new format, it will handle it correctly.
+* Added the ability to specify a solution file by name on the command-line.
+* Added -P option for Lynx pedantic mode.
+* Added the Shift-Ctrl-X feature to permanently delete solutions.
+* Fixed bugs in Shift-Tab feature, and formally documented this feature.
+* Fixed bug in the stepping UI.
+* Fixed bug reported by Thomas Harte, where an international keyboard
+  generating a non-Latin-1 character could cause TW to segfault.
+* Fixed bug reported by Catatonic Porpoise, where SDL was being asked to
+  blit to a locked surface.
+* Fixed a segfault in MS logic reported by Evan Dummit (occurring when a
+  cloner's creature in the northwest corner is replaced by Chip).
+* Added casts to avoid new warnings in gcc 4.
+* Fixed a few other minor MS emulation bugs reported by Evan Dummit.
+* Added a number of unfixed MS emulation bugs to msbugs.txt, several of
+  which were reported by Evan Dummit.
+* A handful of documentation errors were also found and fixed.
+
+2004 Oct 21: version 1.2.1
+* Introduced a basic stepping-control UI, and added stepping information to
+  the solution file format.
+* Fixed a bug (MS logic) reported by David Stolp, involving blocks going
+  out and back into the slip list so quickly that they weren't sent to the
+  end of the list.
+* Fixed a bug (MS logic) reported by David Stolp where block and creatures
+  were not moving into key tiles if the bottom tile prevented it (e.g. a
+  wall).
+* Fixed a bug in sdltext.c, reported by Dale Bryan caused a segfault in
+  16-bit color mode.
+* Added -r (read-only) cmdline option.
+
+2004 Oct 04: version 1.2.0
+* Fixed a bug (MS logic) preventing cloned tanks from turning around when
+  they hadn't yet left the clone machine.
+* Fixed another longstanding bug (MS logic) involving a tank indirectly
+  pushing a blue button. Again, the bug was fixed explicitly instead of
+  trying to make the behavior arise naturally from the code.
+* Improved some of the behavior of blocks being pushed (Lynx logic).
+* Improved some of the behavior of blocked teleports (Lynx logic).
+* Altered animations to run for either 11 or 12 frames, depending on the
+  parity of their initial frame, as discovered by ccexplore. (This finally
+  killed the nine-lived clone-boosting bug in ICEHOUSE!) Also modified the
+  point during the frame when animations get removed.
+* Changed the Lynx walker to use a PRNG equivalent to the original, as
+  worked out by ccexplore.
+* Fixed bug (MS logic) in how a block is removed from the slip list when
+  being pushed by Chip (reported by Shmuel Siegel).
+* Fixed bug (MS logic) with deferred button presses; TW was incorrectly
+  deferring Chip's button presses and not just those caused by block
+  pushing.
+* Fixed a horrid bug when encountering bogus values in a dat file. (The
+  code was meant to gracefully ignore the broken level and continue reading
+  the next level, but it failed to move the file position out of the broken
+  level before doing so.)
+* Fixed keyboard routines so that they now understand characters as well as
+  keystrokes (thus e.g. the program recognizes "?" when entered on a
+  European keyboard).
+* Added a help screen for the initial file menu.
+* A few other minor bug fixes and miscellaneous improvements.
+
+2003 Mar 15: version 1.1.3
+* Put the display code through another significant rewrite. This time, the
+  rewrite seems to have succeeded in improving speeds, at all pixel depths.
+  Instead of hand-rolled arrays and functions, the new code uses SDL
+  surfaces and blits throughout. Tiles are stored in the screen's pixel
+  format whenever possible, and alpha channels are used to handle
+  transparency.
+* Fixed longstanding bug (MS logic) involving Chip pushing a block off of
+  another block via a teleport. (Wasn't hard to fix -- just required some
+  nose-holding.)
+* Added new fractional time display (using -t) for MS. It's still
+  imperfect, but it doesn't hurt to make the feature available.
+* Added -f switch to get fullscreen mode (change requested by Philippe
+  Brochard).
+
+2003 Mar 08: version 1.1.2
+* Added frame-skipping code, so that gameplay doesn't slow down on slower
+  hardware.
+* Blocks on beartraps were getting default initial direction of nil (Lynx
+  logic). Default changed to north. (Reported by ccexplore.)
+* Fixed broken handling (Lynx logic) of creatures that start out on ice
+  (reported by ccexplore).
+* Fixed bug where tanks could be turned around while sliding (Lynx logic).
+* It is now possible to finish a level with exactly zero seconds left (Lynx
+  logic).
+* Improved fixlynx feature to also fix the maps for levels 121 and 127.
+* Reorganized logic code to use fewer static variables.
+
+2003 Mar 01: version 1.1.1
+* Fixed broken handling (MS logic) of tanks not stopping in traps, and the
+  fact that tanks on clone machines can sometimes turn around (reported by
+  ccexplore).
+* Attempted to fix controller bug, where a controller being added to the
+  slip list sets the controller direction according to its slipping
+  direction rather than its visible direction (reported by ccexplore).
+  Hopefully fixing this hasn't broken anything else.
+
+2003 Feb 22: version 1.1
+* Fixed most of the broken handling of controllers (MS logic).
+* Added guards against bad data in encoded maps.
+* Added -a cmdline switch to help improve sound.
+* Removed unintentional trigraphs from source.
+* Added missing initialization of PRNGs.
+* New images for the chip and the socket -- and, finally, a real icon
+  (courtesy of Anders Kaseorg).
+* Upgraded the Windows copy of SDL to 1.2.5a.
+
+2002 May 06: version 1.0
+
+* Added "(paused)" message when game is paused.
+* Minor bugfix in behavior when the creature count maxes out (Lynx).
+* Added intro-ms.dat and intro-lynx.dat.
+* Fleshed out the README file.
+* First official release to the general public.
+
+2002 Apr 06: version 0.10.6
+
+* Fixed off-by-one timing bug (MS logic) when last move of a level is
+  involuntary (discovered by Anders Kaseorg).
+* Changed pause button to work as a toggle (i.e., no other keys will exit
+  pause mode), as requested by Hallgeir Fl .
+
+2002 Feb 25: version 0.10.5
+
+* Amended the Lynx ruleset to follow the button-wiring lists in the dat
+  file, instead of using the original Lynx method of implicit wiring.
+* Fixed uninitialized variable in password-entry function (reported by
+  Ruben Spaans).
+* Fixed moving-block behavior so that they will always enter a square that
+  Chip occupies, regardless of what Chip is standing on (MS).
+* Fixed force-floor behavior so that Chip gets to make a voluntary move
+  immediately after stepping on a force floor if his forced move failed.
+  (Hopefully this is an accurate coverage of the case that TW was getting
+  wrong, and only of that.)
+
+2002 Feb 04: version 0.10.4
+
+* Separated out the two kinds of splashes.
+* Fixed changing level by password (broken in 0.10.3; reported by Hallgeir
+  Fl ).
+* Fixed a couple of bugs in handling invalid levels under Lynx (reported by
+  Chuck Sommerville).
+* Fixed several minor bugs (including several reported by Anders Kaseorg).
+* Began a final code cleanup pass. Improved the comments in most of the
+  source.
+* More documentation changes, including a new README.
+
+2002 Jan 28: version 0.10.3
+
+* Added "Melinda" feature.
+* Reformatted documentation, so man and html versions come from a single
+  source.
+
+2002 Jan 20: version 0.10.2
+
+* Auto-deprecate saved games that are broken.
+* Added some more protection against Ctrl-Ms in text files.
+* Fix for die-if-no-soundcard bug (reported by Bill Darrah).
+* Added resources entries for changing the color scheme.
+* Added hackish "fixlynx" keyword.
+* New: first draft of some real documentation.
+
+2002 Jan 13: version 0.10.1
+
+* Fixed the bug in the lynx emulation where Chip survived when he
+  shouldn't, using a gross little hack. I hate it. But I've been sitting on
+  this bug for over a month now. It's time to give up and put it out of its
+  misery.
+* Fixed the Lynx clock (it was off by one).
+* Added a simple end-screen to display when the player finishes the last
+  level of a set.
+* Added a little more error-checking in the map decoding.
+* Added some basic documentation.
+
+2002 Jan 03: version 0.10.0
+
+* Vastly improved the Lynx emulation of "diagonal" moves. Had to change the
+  save file format (again!!) so that diagonal moves could be properly
+  stored.
+* Added a volume control.
+* Fixed bug in Lynx logic that prevented Chip from standing still on the
+  very first frame when starting on a force floor.
+* Fixes for a few other random things.
+
+2002 Jan 01: version 0.9.3
+
+* Added a proper Chip-dies sequence to the Lynx emulation. Also removed
+  redundant "dirt splash" sequence.
+* A rough attempt at handling "diagonal" moves in Lynx emulation has been
+  put in place.
+
+2001 Dec 27: version 0.9.2
+
+* A couple more memory leaks fixed (these inside of SDL).
+* New tile bitmap format, which permits the use of animated tiles.
+* A couple of stupid crashes that slipped into the previous version have
+  been repaired.
+* Miscellaneous other tweaks.
+
+2001 Dec 07: version 0.9.1
+
+* Added the ability to return to the initial file display. At last!
+* Full-scale assault on the code to weed out memory leaks. (In my defense,
+  the majority of them technically weren't leaks before the prior change
+  was implemented.)
+* Added -t option (unfortunately it's not as useful as I'd hoped it would
+  be).
+* Fixed segfault when trying to play back solution on an unsolved level.
+* Improved the onomatopoeia display.
+* Reorganized the online help.
+
+2001 Dec 03: version 0.9.0
+
+* Found and fixed the obscure slide delay bug that was causing the
+  discrepancy in Eric Schmidt's level 29 ("PARAMECIA")!
+* Threw out all the text-drawing code and replaced it with routines that
+  deal in proportional fonts. Which naturally necessitated rewriting a
+  bunch of the code that displayed text. Lots of changes. Created an
+  abstract table "object", so that my tables could be realized either on
+  the text console or in a proportional font equally well.
+* Implemented sound! Spent an entire weekend making 25 wave files -- and
+  they still sound ridiculous. (But the fact that the game finally has
+  sound is nice.) Onomatopoeia is still available via a cmdline switch.
+* Added password-checking code, plus functions to allow the user to jump to
+  a level by entering a password.
+* Changed the save file format (again!) to store password information, and
+  to be a little smaller.
+* Added the configuration file feature, with a few configuration options.
+  This necessitated adding yet another directory, and once again moving the
+  old one.
+* Various bug fixes that I've forgotten about while working on all the
+  other things.
+
+2001 Nov 14: version 0.8.4
+
+* Rewrote a lot of the display code to avoid redundant drawing of areas of
+  the screen. Didn't really make it faster, but I did make it more to my
+  liking. Also rewrote all of the text display code.
+* Removed gamestate data that was only needed by one of the logic modules
+  and made it private to that module.
+* Fixed bug found by Mike L. regarding the ordering of clones (MS).
+* Fixed bug regarding Chip trying to move on random force floors (MS).
+* Added code to indicate when Chip is pushing (Lynx).
+
+2001 Nov 10: version 0.8.3
+
+* MS logic bug fix (clone machine would get stuck if clone died while
+  exiting).
+* Mixed improvement of display code. (The really cool revamping of the
+  display code wound out performing horribly on 24-bit displays, and so had
+  to be tossed out.)
+
+2001 Nov 08: version 0.8.2
+
+* Found problem with teleports (MS): creatures provide their own teleport
+  blockage! Fixed.
+* Careful investigation revealed more timing bugs with buttons, teleports,
+  and maybe beartraps as well (MS). Rewrote the endmovement() function
+  until everything was being done in the right order.
+* Added an "rc" file which can be edited to change the filenames of the
+  external resources.
+* Discovered and fixed a discrepancy in the slide delay (MS).
+* The usual sundry tweaks.
+
+2001 Oct 29: version 0.8.1
+
+* Fixed bug introduced in 0.7.2, correctly this time.
+* Fixed intermittent memory corruption caused by an uninitialized stack
+  variable.
+
+2001 Oct 28: version 0.8.0
+
+* Fixed bug introduced in 0.7.2 which caused Chip to "come to rest" when he
+  couldn't make a forced move (MS).
+* Fixed buried beartrap behavior in MS game logic.
+* Altered the solution file format (been wanting to do that for a long
+  time).
+* Gave the program an icon (a temporary one, until I can get someone to
+  make me a real icon).
+
+2001 Oct 23: version 0.7.2
+
+* Fixed two bugs in MS game logic discovered by Anders Kaseorg (creatures
+  entering random slide floors, and Chip causing slide delay).
+* Rewrote the clone machine code to better match the internals of the MS
+  game (thanks to recent discoveries). Also fixed the red-button logic so
+  that clones do not block their own clone machines.
+
+2001 Oct 22: version 0.7.1
+
+* Fixed bug in MS game logic found by Anders Kaseorg (button not recognized
+  when hit by a block being pushed by Chip while on the slip list).
+
+2001 Oct 21: version 0.7.0
+
+* Altered handling of the slip list in the MS game logic. Creatures on the
+  slip list now have their slip direction stored separately from their
+  pointed direction, and the former is determined at the time they enter a
+  tile, instead of just before moving off of it.
+* My first serious attempt at implementing slide delay!
+* Many little tweaks to the MS logic. I think it's getting close....
+* The tile images are no longer compiled into the binary; instead they are
+  loaded out of an external bitmap file. The rendering code was changed to
+  use 32-bit images internally instead of 8-bit images, so that all types
+  of bitmaps can be accepted.
+* Added a new shared subdirectory for holding the data files; the main
+  shared directory is now used to hold images.
+* Altered the onomatopoeia code to ease future introduction of sound.
+* Fixed the Lynx bug regarding the bequeathing of a slide token, or rather
+  the lack thereof, when Chip is at a force-floor dead end.
+
+2001 Oct 05: version 0.6.0
+
+* Rewrote several fundamentals of the MS game logic, in order to bring it
+  more in line with MS's layered map, as well as its treatment of blocks as
+  non-creatures.
+* Made some general changes to the game internals in order to accommodate
+  the above changes.
+* Many tweaks and improvements to the MS game logic.
+* Added the Ctrl-X feature to permit replacement of saved games --
+  something I should have added a long time ago.
+
+2001 Aug 27: version 0.5.1
+
+* Made some changes in the game-saving code to avoid an infinite loop that
+  was sometimes happening under Windows.
+* Fixed two bugs in MS game logic identified by Anders Kaseorg. (1. Chip
+  can only attempt to move once per tick -- a failed move still counts. 2.
+  Creatures moving onto the slide list make their first slide move in the
+  same tick.)
+
+2001 Aug 19: version 0.5
+
+* First alpha version.
+* The SVGAlib layer has been replaced with a much more complete layer for
+  SDL. The program can now be compiled for either X or MS Windows. (All
+  hail SDL and gcc's cross-compiling capabilities!) SDL also works under
+  SVGAlib, but it looks terrible on my hardware.
+* A version of the game logic implementing the MS ruleset (with lots of
+  bugs) has been added. The program can now switch between the two
+  rulesets.
+* I ripped the entire code base apart and put it back together again
+  (except for the parts that were thrown out). The code is somewhat better
+  organized now.
+* Code was added to select data files, display scores, and lots of little
+  things all over the place.
+* Comments! They're still pretty skeletal, but they're better than what was
+  there before.
+
+2001 Jul 15: version 0.1
+
+* The previous game logic has been replaced with a complete game logic
+  module for the Lynx ruleset.
+* The SVGAlib layer has been heavily rewritten to do raw keyboard polling
+  and smooth-scrolling.
+* Lots of other changes and bug fixes.
+
+2001 May 19: version 0.0
+
+* First limited public release.
+* Most of the basic infrastructure is in place, including a working draft
+  of a game logic module.
