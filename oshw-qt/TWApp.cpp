@@ -147,17 +147,9 @@ void freesfx(int index)
 
 #endif
 
-
 int TileWorldApp::RunTWorld()
 {
-	if (!setjmp(m_jmpBuf))	// try
-	{
-		return tworld(argc(), argv());
-	}
-	else	// catch (int)
-	{
-		return 0;
-	}
+    return tworld(argc(), argv());
 }
 
 
@@ -170,7 +162,6 @@ void TileWorldApp::ExitTWorld()
 	
 	// longjmp(m_jmpBuf, 1);
 	// Works, but needs to be cleaner
-
 	::exit(0);
 	// Live with this for now...
 }

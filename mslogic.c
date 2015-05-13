@@ -17,7 +17,7 @@
 #else
 #define	_assert(test)	((test) || (die("internal error: failed sanity check" \
 				        " (%s)\nPlease report this error to"  \
-				        " breadbox@muppetlabs.com", #test), 0))
+				        " eric41293@comcast.net", #test), 0))
 #endif
 
 /* A list of ways for Chip to lose.
@@ -26,19 +26,6 @@ enum {
     CHIP_OKAY = 0,
     CHIP_DROWNED, CHIP_BURNED, CHIP_BOMBED, CHIP_OUTOFTIME, CHIP_COLLIDED,
     CHIP_NOTOKAY
-};
-
-/* Status information specific to the MS game logic.
- */
-struct msstate {
-    unsigned char	chipwait;	/* ticks since Chip's last movement */
-    unsigned char	chipstatus;	/* Chip's status (one of CHIP_*) */
-    unsigned char	controllerdir;	/* current controller direction */
-    unsigned char	lastslipdir;	/* Chip's last involuntary movement */
-    unsigned char	completed;	/* level completed successfully */
-    short		goalpos;	/* mouse spot to move Chip towards */
-    signed char		xviewoffset;	/* offset of map view center */
-    signed char		yviewoffset;	/*   position from position of Chip */
 };
 
 /* Forward declaration of a central function.
@@ -92,17 +79,17 @@ static gamestate       *state;
 #define	showhint()		(state->statusflags |= SF_SHOWHINT)
 #define	hidehint()		(state->statusflags &= ~SF_SHOWHINT)
 
-#define	getmsstate()		((struct msstate*)state->localstateinfo)
+#define	getmsstate()		(state->msstate)
 
-#define	completed()		(getmsstate()->completed)
-#define	chipstatus()		(getmsstate()->chipstatus)
-#define	chipwait()		(getmsstate()->chipwait)
-#define	controllerdir()		(getmsstate()->controllerdir)
-#define	lastslipdir()		(getmsstate()->lastslipdir)
-#define	xviewoffset()		(getmsstate()->xviewoffset)
-#define	yviewoffset()		(getmsstate()->yviewoffset)
+#define	completed()		(getmsstate().completed)
+#define	chipstatus()		(getmsstate().chipstatus)
+#define	chipwait()		(getmsstate().chipwait)
+#define	controllerdir()		(getmsstate().controllerdir)
+#define	lastslipdir()		(getmsstate().lastslipdir)
+#define	xviewoffset()		(getmsstate().xviewoffset)
+#define	yviewoffset()		(getmsstate().yviewoffset)
 
-#define	goalpos()		(getmsstate()->goalpos)
+#define	goalpos()		(getmsstate().goalpos)
 #define	hasgoal()		(goalpos() >= 0)
 #define	cancelgoal()		(goalpos() = -1)
 
@@ -689,7 +676,10 @@ static void removecreature(creature *cr)
     cr->state &= ~(CS_SLIP | CS_SLIDE);
     if (cr->id == Chip) {
 	if (chipstatus() == CHIP_OKAY)
+        {
+            warn("lolwut");
 	    chipstatus() = CHIP_NOTOKAY;
+        }
     } else
 	cr->hidden = TRUE;
 }
@@ -1299,7 +1289,7 @@ static void choosechipmove(creature *cr, int discard)
 	lastmove() = dir;
     }
 
-    if (dir == NIL && hasgoal() && currenttime() && !(currenttime() & 1))
+    if (dir == NIL && hasgoal() && (currenttime() & 3) == 2)
 	dir = chipmovetogoalpos();
 
     cr->tdir = dir;
@@ -1529,7 +1519,6 @@ static void endmovement(creature *cr, int dir)
     cell = cellat(newpos);
     tile = &cell->top;
     floor = tile->id;
-
     if (cr->id == Chip) {
 	switch (floor) {
 	  case Empty:

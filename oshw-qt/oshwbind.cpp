@@ -330,7 +330,7 @@ extern "C" void TW_DebugSurface(TW_Surface* s, const char* szFilename)
 	if (n == 10) return;
 	++n;
 	
-	Qt_Surface* pSurface = static_cast<const Qt_Surface*>(s);
+	Qt_Surface* pSurface = static_cast<Qt_Surface*>(s);
 	QString sNFilename = QString::number(n) + szFilename;
 	pSurface->GetImage().save(sNFilename);
 	// pSurface->GetImage().createAlphaMask().save(sNFilename);

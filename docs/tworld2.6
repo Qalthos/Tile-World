@@ -1,4 +1,4 @@
-.TH tworld2 6 "Mar 2006" "Tile World"
+.TH tworld2 6 "Mar 2014" "Tile World"
 .LO 1
 .SH NAME
 tworld2 \- Tile World 2
@@ -233,6 +233,9 @@ toggles between even-step and odd-step offset.
 .B Shift-O
 (Lynx-mode only) increments the stepping offset by one.
 .TP
+.B F
+(Lynx-mode only) changes the initial direction for the "random" force floors.
+.TP
 .B Ctrl-X
 deprecates the best solution for that level. If the level is then
 succesfully completed again, the saved solution will be replaced with
@@ -278,11 +281,14 @@ to be played under. Some level sets can be played under both rulesets
 .br
 .SH ADDING NEW LEVEL SETS
 Level sets are defined by data files. By convention these file are
-named with a .dat extension. Typically the name proper contains
-the author's first name, last initial, and a single digit -- for
-example, EricS1.dat. (The digit is used to give the sequence in
-case the author, for whatever reason, stores their creations in more
-than one file.)
+named with a .dat or .ccl extension. Classically, the name proper
+contains the author's first name, last initial, and a single digit --
+for example, a set by someone named Bob Nomo could be called
+BobN1.dat. (The digit is used to give the sequence in case the author,
+for whatever reason, stores their creations in more than one file.)
+Some more recent level sets do not follow this naming pattern,
+however, so it is not always easy to find out the author from the
+set's name.
 .P
 When a new data file is obtained, it may simply be copied into the
 level set directory (cf
@@ -297,13 +303,11 @@ below).
 .SH COMMAND-LINE OPTIONS
 tworld2 is normally invoked without arguments. The program begins by
 displaying a list of the available level sets. After a level set is
-chosen, the program jumps to the first unsolved level to begin
-play.
+chosen, the program jumps (if possible) to the last level played in
+that set.
 .P
 The available command-line options are enumerated in the following
-table. (Windows users: The options that cause the program to display
-information on standard output actually go to a file named
-stdout.txt instead.)
+table.
 .P
 .TP
 .B -a
@@ -351,7 +355,7 @@ Write a list of available level sets to standard output and exit.
 Set the initial volume level to
 .IR "N" ,
 0 being silence and 10 being
-full volume. The default level is 10.
+full volume.
 .TP
 .B -P
 Turn on pedantic mode, forcing the Lynx ruleset to emulate the
@@ -376,7 +380,7 @@ Read resource data from
 instead of the default directory.
 .TP
 .BI "-S\ " DIR
-Read and write solution files under
+Read and write solution files (and other saved data) under
 .I DIR
 instead of the default
 directory.
@@ -473,6 +477,26 @@ is obtained. (The changes made in the MS version were: an extra level
 was added; four passwords were garbled; and four or five levels' maps
 had minor alterations.)
 .br
+.SH CCX FILES
+The data directory may contain a file with the same name as a level
+set, but with a .ccx extension. This file can be used to specify
+various data, such as ruleset compatibility and authorship (both for
+the entire set and for individual levels. It is also possible to
+specify text displayed when reaching or completing levels. This can be
+used to give an ongoing story for a level set, or for other
+purposes. Detailed documentation does not currently exist. One way to
+produce a CCX file for a set is to emulate the structure of an
+existing one (such as that for CCLP1 or CCLP3). You can also use the
+"CCX File Editor" by Mike Lask.
+.P
+Some people may wish not to view text associated with levels. This can
+be controlled using the "Auto-display Level Text" menu under
+"Options". Whether or not this option is enabled, level text can be
+viewed using the "View Prologue" (for text displayed when visiting a
+level) and "View Epilogue" (for text displayed when completing a
+level). The epilogue is only available for levels that have been
+completed.
+.br
 .SH RESOURCES
 Tile World loads various resources at runtime from its resource
 directory (cf
@@ -540,6 +564,18 @@ identifies the filename for the database of unsolvable levels. See
 below for more information about this
 file. Note that this resource must be defined independent of the
 ruleset, or else it will be ignored.
+.P
+A line of the form
+.P
+EndMessages =
+.I FILENAME
+.P
+identifies the filename for the messages displayed when losing or
+winning a level. See
+.B END OF LEVEL MESSAGES
+below for more information about this file. Note that this resource
+must be defined independent of the ruleset, or else it will be
+ignored.
 .P
 Four resources define the colors used in rendering text:
 .P
@@ -684,6 +720,41 @@ number, so that updated versions will no longer be identified as
 unsolvable. See the Tile World website for more information about the
 format of this file, and to check for updates to the database.
 .br
+.SH END OF LEVEL MESSAGES
+When you win or lose a level, Tile World displays a message. These
+messages can be customized using a file in the resource directory,
+whose default name is messages.txt. This file can contain an umlimited
+number of messages for Tile World to choose from. The file consists of
+sections of the form
+.P
+:
+.IR messagetypes
+.br 
+.IR message
+.br
+.IR message
+.P
+Here,
+.IR messagetypes
+can contain any of "die" (for when the player dies), "time" (for when
+the player runs out of time), or "win" (for when the player completes
+the level. It is possible to specify more than one type. For example,
+the file
+.P
+:die time
+.br 
+Message 1
+.br
+Message 2
+:die
+Message 3
+:win
+Message 4
+.P
+specifies that either "Message 1" or "Message 2" can be displayed when
+the player dies or runs out of time, "Message 3" can only be displayed
+upon death, and "Message 4" can only be displayed when the level is
+won.
 .SH DIRECTORIES
 Tile World uses four different directories for storing external files.
 The following list enumerates the directories and describes their
@@ -708,8 +779,8 @@ This directory stores the graphics and sound files used by the
 program. (default for Linux: /usr/local/share/tworld/res)
 .TP
 .B Save
-This directory is used for saving solution files. (default for
-Linux: ~/.tworld)
+This directory is used for saving solution files, and
+settings. (default for Linux: ~/.tworld)
 .br
 .SH ENVIRONMENT VARIABLES
 Two environment variables can be used to override the program's
@@ -721,10 +792,11 @@ Specifies a top-level directory, in which the program will look for
 the resource, level set, and data file directories.
 .TP
 .B TWORLDSAVEDIR
-Specifies a directory for saving solution files.
+Specifies a directory for saving solution files and settings.
 .br
 .SH LICENSE
-Tile World is copyright (C) 2001-2010 by Brian Raiter and Madhav Shanbhag.
+Tile World is copyright (C) 2001-2014 by Brian Raiter, Madhav
+Shanbhag, and Eric Schmidt.
 .P
 This program is free software; you can redistribute it and/or  
 modify it under the terms of the GNU General Public License as 
@@ -740,7 +812,7 @@ or
 See the GNU
 General Public License for more details.
 .P
-Please send bug reports to CrapulentCretin@Yahoo.com.
+Please send bug reports to CrapulentCretin@Yahoo.com or eric41293@comcast.net.
 .br
 .SH HISTORY
 "Chip's Challenge" was created by Chuck Sommerville, and was
@@ -786,11 +858,15 @@ Packs, the original "Chip's Challenge" is no longer available except
 by purchasing a used copy of one of the aforementioned Entertainment
 Packs (or by downloading an illegal copy).
 .P
-In 2001, the author began writing "Tile World" with the intention of
-recreating a version of the MS game for the Linux platform. At the
-encouragement of Chuck Sommerville, this project was expanded to
-include the goals of recreating the original Lynx game as well, and
-also making the program work under MS Windows in addition to Linux.
+In 2001, Brain Raiter author began writing "Tile World" with the
+intention of recreating a version of the MS game for the Linux
+platform. At the encouragement of Chuck Sommerville, this project was
+expanded to include the goals of recreating the original Lynx game as
+well, and also making the program work under MS Windows in addition to
+Linux.
+.P
+In 2010, Madhav Shanbhag produced "Tile World 2", which had several
+new features. In 2014, Eric Schmidt produced version 2.1.
 .br
 .SH APPENDIX: NOTES ON NOMENCLATURE
 "Chip's Challenge" has seen several incarnations. Each had its own

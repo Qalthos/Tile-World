@@ -1,4 +1,36 @@
-2010 Dec 22: version 2.0.0
+2014 Mar 26: version 2.1.0 (by Eric Schmidt, with contributions from
+             Madhav Shanbhag)
+* Main window layout changed; in particular, passwords are visible.
+* Fixed Lynx toggle wall bug: if a level stopped running the instant a
+  toggle button was pressed, the walls would toggle the next time play
+  started.
+* When selecting a level set, the game now tries to start on the level the
+  player left off from, rather than the earliest unsolved level.
+* MS mouse emulation bug fixed. (report and fix from David Stolp)
+* Some "stuck key" problems fixed, such as Alt-Tab on Windows 7.
+* The fileio.c patch, which fixes a .tws corruption problem on 64-bit Linux,
+  has been applied.
+* Added the ability to disable the display of CCX text when visiting or
+  completing a level.
+* Added ability to view CCX text via menu options.
+* Messages displayed when winning, dying, or running out of time are now
+  customizable via external file.
+* When playback of the solution to the last level in the set finishes, the
+  congratulatory message box wouldn't appear. Now it does.
+* In Lynx mode, it is now possible to select the starting direction for the
+  "random" force floors, by using the "f" key.
+* Added settings file. There are currently two settings: (i) whether to
+  display CCX text, and (ii) sound volume.
+* Debug/cheat keys completely disabled for releases.
+* In pedantic Lynx mode, when an entity attempts to leave the map, rather
+  than play being halted, a warning is printed on stderr, and play
+  continues as in non-pedantic mode.
+* "Goto" menu item renamed "Enter Password", and greyed out during play.
+  (Before, it could be selected, but it would not do anything.)
+* Miscellaneous code changes not visible to users, to eliminate compiler
+  warnings and for other reasons.
+
+2010 Dec 22: version 2.0.0 (by Madhav Shanbhag)
 * First public release of Tile World 2 featuring numerous improvements.
 
 2006 Apr 17: version 1.3.0

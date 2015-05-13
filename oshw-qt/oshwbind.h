@@ -4,8 +4,8 @@
  * under the GNU General Public License. No warranty. See COPYING for details.
  */
 
-#ifndef	_oshwbind_h_
-#define	_oshwbind_h_
+#ifndef	HEADER_qt_oshwbind_h_
+#define	HEADER_qt_oshwbind_h_
 
 
 #include <stdint.h>

@@ -4,8 +4,8 @@
  * domain.
  */
 
-#ifndef	_cmdline_h_
-#define	_cmdline_h_
+#ifndef	HEADER_cmdline_h_
+#define	HEADER_cmdline_h_
 
 /* Begin by calling initoptions with your argc-argv pair, a string
  * containing a list of valid options, and an cmdlineinfo structure.

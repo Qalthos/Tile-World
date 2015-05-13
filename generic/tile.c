@@ -212,7 +212,7 @@ static void remembersurface(TW_Surface *surface)
 {
     if (surfacesused >= surfacesallocated) {
 	surfacesallocated += 256;
-	xalloc(surfaceheap, surfacesallocated * sizeof *surfaceheap);
+	x_alloc(surfaceheap, surfacesallocated * sizeof *surfaceheap);
     }
     surfaceheap[surfacesused++] = surface;
 }
@@ -1016,7 +1016,7 @@ static int initlargetileset(TW_Surface *tiles)
     if (!settilesize(w, h))
 	return FALSE;
 
-    xalloc(tilepos, (sizeof tileidmap / sizeof *tileidmap) * sizeof *tilepos);
+    x_alloc(tilepos, (sizeof tileidmap / sizeof *tileidmap) * sizeof *tilepos);
 
     row = 0;
     nextrow = geng.htile + 1;

@@ -4,6 +4,7 @@ TextColor=CCCCCC
 BoldTextColor=FFFFFF
 DimTextColor=999999
 UnsolvableList=unslist.txt
+EndMessages=messages.txt
 LevelCompleteSound=tada.wav
 PickupToolSound=ting.wav
 ThiefSound=thief.wav

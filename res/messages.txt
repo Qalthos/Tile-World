@@ -1,0 +1,21 @@
+:die
+Whoops... Let's try again.
+Why don't ya watch where you're going?
+Getting killed can be injurious to Chip's health!
+Uh-oh: Chip performed a fatal operation and was terminated.
+Great, now look what you did!
+Hey, are you doing that on purpose?
+
+:time
+Well, that was an untimely demise.
+You do know there's a time limit on this level, right?
+Look, we don't have all the time in the world!
+Alert: The system has determined that you are either moving or thinking too slowly.
+
+:die time
+The idea here is to win the level, not lose it!
+
+:win
+Congratulations!
+Well done!
+Good work!

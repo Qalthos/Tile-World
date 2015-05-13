@@ -4,8 +4,8 @@
  * License. No warranty. See COPYING for details.
  */
 
-#ifndef	_score_h_
-#define	_score_h_
+#ifndef	HEADER_score_h_
+#define	HEADER_score_h_
 
 #include	"defs.h"
 

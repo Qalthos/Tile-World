@@ -1,6 +1,6 @@
 /* play.c: Top-level game-playing functions.
  *
- * Copyright (C) 2001-2010 by Brian Raiter and Madhav Shanbhag,
+ * Copyright (C) 2001-2014 by Brian Raiter, Madhav Shanbhag, and Eric Schmidt,
  * under the GNU General Public License. No warranty. See COPYING for details.
  */
 
@@ -235,6 +235,28 @@ int changestepping(int delta, int display)
     return TRUE;
 }
 
+/* Advance initial random force floor direction (in Lynx mode) */
+void advanceinitrandomff(int display)
+{
+    if (state.ruleset == Ruleset_Lynx)
+    {
+        state.initrndslidedir = right(state.initrndslidedir);
+        if (display)
+        {
+            char msg[32] = "random FF ";
+            switch (state.initrndslidedir)
+            {
+              /* The direction will be cycled again before being used */
+              case NORTH: strcat(msg, "east");  break;
+              case EAST:  strcat(msg, "south"); break;
+              case SOUTH: strcat(msg, "west");  break;
+              case WEST:  strcat(msg, "north"); break;
+            }
+	    setdisplaymsg(msg, 500, 500);
+        }       
+    }
+}
+
 /* Advance the game one tick and update the game state. cmd is the
  * current keyboard command supplied by the user. The return value is
  * positive if the game was completed successfully, negative if the
@@ -281,10 +303,7 @@ int doturn(int cmd)
 	state.lastmove = NIL;
     }
 
-    if (n)
-	return n;
-
-    return 0;
+    return n;
 }
 
 /* Update the display to show the current game state (including sound

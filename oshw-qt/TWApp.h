@@ -5,13 +5,9 @@
 #ifndef TWAPP_H
 #define TWAPP_H
 
-
 class TileWorldMainWnd;
 
 #include <QApplication>
-
-#include <setjmp.h>
-
 
 class TileWorldApp : public QApplication
 {
@@ -29,7 +25,6 @@ public:
 	
 private:
 	bool m_bSilence, m_bShowHistogram, m_bFullScreen;
-	jmp_buf m_jmpBuf;
 };
 
 

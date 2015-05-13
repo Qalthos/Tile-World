@@ -1,4 +1,4 @@
-/* Copyright (C) 2001-2010 by Madhav Shanbhag,
+/* Copyright (C) 2001-2014 by Madhav Shanbhag and Eric Schmidt
  * under the GNU General Public License. No warranty. See COPYING for details.
  */
 
@@ -9,10 +9,13 @@
 
 #include "../gen.h"
 #include "../defs.h"
+#include "../messages.h"
+#include "../settings.h"
 #include "../state.h"
 #include "../play.h"
 #include "../oshw.h"
 #include "../err.h"
+
 extern int pedanticmode;
 
 #include <QApplication>
@@ -56,6 +59,7 @@ extern int pedanticmode;
 
 using namespace std;
 
+#define COUNTOF(a) (sizeof(a) / sizeof(a[0]))
 
 class TWStyledItemDelegate : public QStyledItemDelegate
 {
@@ -225,7 +229,7 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 	if (pGameLayout != 0)
 	{
 		pGameLayout->setAlignment(m_pGameFrame, Qt::AlignCenter);
-		pGameLayout->setAlignment(m_pCountersFrame, Qt::AlignCenter);
+		pGameLayout->setAlignment(m_pInfoFrame, Qt::AlignCenter);
 		pGameLayout->setAlignment(m_pObjectsFrame, Qt::AlignCenter);
 		pGameLayout->setAlignment(m_pMessagesFrame, Qt::AlignHCenter);
 	}
@@ -268,6 +272,8 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 	connect( new QShortcut(Qt::Key_P, m_pTextPage), SIGNAL(activated()), this, SLOT(OnTextPrev()) );
 	
 	connect( m_pMenuBar, SIGNAL(triggered(QAction*)), this, SLOT(OnMenuActionTriggered(QAction*)) );
+
+        action_displayCCX->setChecked(getintsetting("displayccx"));
 }
 
 
@@ -320,6 +326,20 @@ bool TileWorldMainWnd::eventFilter(QObject* pObject, QEvent* pEvent)
 	return QMainWindow::eventFilter(pObject, pEvent);
 }
 
+struct QtModifier_TWKey
+{
+	Qt::KeyboardModifier nQtMod;
+	int nTWKey;
+};
+
+static const QtModifier_TWKey g_modKeys[] =
+{
+	{Qt::ShiftModifier,		TWK_LSHIFT},
+	{Qt::ControlModifier,	TWK_LCTRL},
+	{Qt::AltModifier,		TWK_LALT},
+	{Qt::MetaModifier,		TWK_LMETA}
+};
+
 bool TileWorldMainWnd::HandleEvent(QObject* pObject, QEvent* pEvent)
 {
 	if (!m_bSetupUi) return false;
@@ -345,11 +365,28 @@ bool TileWorldMainWnd::HandleEvent(QObject* pObject, QEvent* pEvent)
 				nTWKey = TWK_FUDGE(nQtKey);
 			else
 				return false;
+
 			// Completely ignore multimedia keys, etc. and don't consume them
 				
 			bool bPress = (eType == QEvent::KeyPress);
 			m_nKeyState[nTWKey] = bPress;
 			// Always record the application key state
+
+			// Handle modifier keys falling out of sync due to some events never being received
+			// E.g., Windows 7 never sends Alt key-up after Alt+Tab
+			for (size_t m = 0; m < COUNTOF(g_modKeys); ++m)
+			{
+				const QtModifier_TWKey& mod = g_modKeys[m];
+				if (mod.nTWKey == nTWKey)
+					continue;
+				bool bModPressed = ((pKeyEvent->modifiers() & mod.nQtMod) != 0);
+				if (m_nKeyState[mod.nTWKey] != bModPressed)
+				{
+					m_nKeyState[mod.nTWKey] = bModPressed;
+					keyeventcallback(mod.nTWKey, bModPressed);
+					// printf("*** MOD 0x%X = %d\n", mod.nTWKey, int(bModPressed));
+				}
+			}
 				
 			bool bConsume = (m_pMainWidget->currentIndex() == PAGE_GAME) &&
 							(QApplication::activeModalWidget() == 0);
@@ -682,7 +719,6 @@ bool TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 		m_pLblTitle->setAlignment(halign | Qt::AlignVCenter);
 		
 		m_pLblPassword->setText(pState->game->passwd);
-		m_pLblPassword->setVisible(false);	//
 		
 		m_bOFNT = (sTitle.toUpper() == "YOU CAN'T TEACH AN OLD FROG NEW TRICKS");
 			
@@ -692,6 +728,13 @@ bool TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 		
 		menu_Game->setEnabled(true);
 		menu_Solution->setEnabled(bHasSolution);
+		action_GoTo->setEnabled(true);
+                CCX::Level const & currLevel
+		    (m_ccxLevelset.vecLevels[m_nLevelNum]);
+		bool hasPrologue(!currLevel.txtPrologue.vecPages.empty());
+		bool hasEpilogue(!currLevel.txtEpilogue.vecPages.empty());
+                action_Prologue->setEnabled(hasPrologue);
+                action_Epilogue->setEnabled(hasEpilogue && bHasSolution);
 
 		m_pPrgTime->setPar(-1);
 		
@@ -738,8 +781,6 @@ bool TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 	}
 	else
 	{
-		// m_pLCDNumber->setVisible(false);
-		m_pLblPassword->setVisible(false);
 		m_bReplay = (pState->replay >= 0);
 		m_pControlsFrame->setVisible(m_bReplay);
 		if (m_bProblematic)
@@ -750,6 +791,9 @@ bool TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 
 		menu_Game->setEnabled(false);
 		menu_Solution->setEnabled(false);
+		action_GoTo->setEnabled(false);
+		action_Prologue->setEnabled(false);
+		action_Epilogue->setEnabled(false);
 	}
 
 	if (pState->statusflags & SF_SHUTTERED)
@@ -991,55 +1035,21 @@ int displayendmessage(int basescore, int timescore, long totalscore,
 	return g_pMainWnd->DisplayEndMessage(basescore, timescore, totalscore, completed);
 }
 
-struct TWMessage
+void TileWorldMainWnd::ReleaseAllKeys()
 {
-	enum Type {TW_INFO=0, TW_QUESTION, TW_WARNING, TW_ERROR};
-
-	Type eType;
-	const char* szText;
-	
-	// static const QMessageBox::Icon s_eIcon[];
-	static const QStyle::StandardPixmap s_eStdIcon[];
-	static const char* const s_szTitle[];
-};
-
-/*
-const QMessageBox::Icon TWMessage::s_eIcon[] =
-	{QMessageBox::Information, QMessageBox::Question, QMessageBox::Warning, QMessageBox::Critical};
-*/
-
-const QStyle::StandardPixmap TWMessage::s_eStdIcon[] =
-	{QStyle::SP_MessageBoxInformation, QStyle::SP_MessageBoxQuestion, QStyle::SP_MessageBoxWarning, QStyle::SP_MessageBoxCritical};
-
-const char* const TWMessage::s_szTitle[] =
-	{"Information", "Question", "Warning", "Error"};
-	
-#define COUNTOF(a) (sizeof(a) / sizeof(a[0]))
-	
-static const TWMessage g_msgDeath[] =
-{
-	{TWMessage::TW_INFO,     "Whoops... Let's try again."},
-	{TWMessage::TW_QUESTION, "Why don't ya watch where you're going?"},
-	{TWMessage::TW_WARNING,  "Getting killed can be injurious to Chip's health!"},
-	{TWMessage::TW_ERROR,    "Uh-oh: Chip performed a fatal operation and was terminated"},
-	{TWMessage::TW_WARNING,  "Great, now look what you did!"},
-	{TWMessage::TW_QUESTION, "Hey, are you doing that on purpose?"}
-};
-
-static const TWMessage g_msgTimeout[] =
-{
-	{TWMessage::TW_INFO,     "Well, that was an untimely demise."},
-	{TWMessage::TW_QUESTION, "You do know there's a time limit on this level, right?"},
-	{TWMessage::TW_WARNING,  "Look, we don't have all the time in the world!"},
-	{TWMessage::TW_ERROR,    "Alert: The system has determined that you are either moving or thinking too slowly"}
-};
-
-static const char* const g_szMsgCompletion[] =
-{
-	"Congratulations!",
-	"Well done!",
-	"Good work!"
-};
+	// On X11, it seems that the last key-up event (for the arrow key that resulted in completion)
+	//  is never sent (neither to the main widget, nor to the message box).
+	// So pretend that all keys being held down were released.
+	for (int k = 0; k < TWK_LAST; ++k)
+	{
+		if (m_nKeyState[k])
+		{
+			m_nKeyState[k] = false;
+			keyeventcallback(k, false);
+			// printf("*** RESET 0x%X\n", k);
+		}
+	}
+} 
 
 int TileWorldMainWnd::DisplayEndMessage(int nBaseScore, int nTimeScore, long lTotalScore, int nCompleted)
 {
@@ -1062,8 +1072,12 @@ int TileWorldMainWnd::DisplayEndMessage(int nBaseScore, int nTimeScore, long lTo
 		if (m_bReplay)
 			szMsg = "Alright!";
 		else
-			szMsg = g_szMsgCompletion[m_nNextCompletionMsg++ % COUNTOF(g_szMsgCompletion)];
-		
+                {
+			szMsg = getmessage(MessageWin);
+                        if (!szMsg)
+				szMsg = "You won!";
+		}
+
 		QString sText;
 		QTextStream strm(&sText);
 		strm.setLocale(m_locale);
@@ -1136,6 +1150,7 @@ int TileWorldMainWnd::DisplayEndMessage(int nBaseScore, int nTimeScore, long lTo
 		connect( pBtnCopyScore, SIGNAL(clicked()), this, SLOT(OnCopyText()) );
 		
 		msgBox.exec();
+		ReleaseAllKeys();
 		if (msgBox.clickedButton() == pBtnRestart)
 			return CmdSameLevel;
 			
@@ -1160,25 +1175,34 @@ int TileWorldMainWnd::DisplayEndMessage(int nBaseScore, int nTimeScore, long lTo
 		}
 		else
 		{
-			const TWMessage* pMsg = 0;
+			const char* szMsg = 0;
 			if (bTimeout)
-				pMsg = &g_msgTimeout[m_nNextTimeoutMsg++ % COUNTOF(g_msgTimeout)];
+			{
+				szMsg = getmessage(MessageTime);
+	                        if (!szMsg)
+					szMsg = "You ran out of time.";
+			}
 			else
-				pMsg = &g_msgDeath[m_nNextDeathMsg++  % COUNTOF(g_msgDeath)];
+			{
+				szMsg = getmessage(MessageDie);
+	                        if (!szMsg)
+					szMsg = "You died.";
+			}
 			
-			msgBox.setText(pMsg->szText);
-			// msgBox.setIcon(TWMessage::s_eIcon[pMsg->eType]);
+			msgBox.setTextFormat(Qt::PlainText);
+			msgBox.setText(szMsg);
 			// setIcon also causes the corresponding system sound to play
 			// setIconPixmap does not
 			QStyle* pStyle = QApplication::style();
 			if (pStyle != 0)
 			{
-				QIcon icon = pStyle->standardIcon(TWMessage::s_eStdIcon[pMsg->eType]);
+      				QIcon icon = pStyle->standardIcon(QStyle::SP_MessageBoxWarning);
 				msgBox.setIconPixmap(icon.pixmap(48));
 			}
-			msgBox.setWindowTitle(TWMessage::s_szTitle[pMsg->eType]);
+			msgBox.setWindowTitle("Oops.");
 		}
 		msgBox.exec();
+		ReleaseAllKeys();
 	}
 	
 	return CmdProceed;
@@ -1536,7 +1560,7 @@ void TileWorldMainWnd::ReadExtensions(gameseries* pSeries)
 void TileWorldMainWnd::Narrate(CCX::Text CCX::Level::*pmTxt, bool bForce)
 {
 	CCX::Text& rText = m_ccxLevelset.vecLevels[m_nLevelNum].*pmTxt;
-	if (rText.bSeen && !bForce)
+	if ((rText.bSeen || !action_displayCCX->isChecked()) && !bForce)
 		return;
 	rText.bSeen = true;
 
@@ -1626,9 +1650,19 @@ void TileWorldMainWnd::OnCopyText()
 	pClipboard->setText(m_sTextToCopy);
 }
 
-
 void TileWorldMainWnd::OnMenuActionTriggered(QAction* pAction)
 {
+	if (pAction == action_Prologue)
+	    { Narrate(&CCX::Level::txtPrologue, true); return; }
+	if (pAction == action_Epilogue)
+	    { Narrate(&CCX::Level::txtEpilogue, true); return; }
+
+	if (pAction == action_displayCCX)
+	{
+	    setintsetting("displayccx", pAction->isChecked() ? 1 : 0);
+	    return;
+	}
+
 	int nTWKey = GetTWKeyForAction(pAction);
 	if (nTWKey == TWK_dummy) return;
 	PulseKey(nTWKey);

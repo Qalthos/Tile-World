@@ -164,7 +164,7 @@ void initmovelist(actlist *list)
 {
     if (!list->allocated || !list->list) {
 	list->allocated = 16;
-	xalloc(list->list, list->allocated * sizeof *list->list);
+	x_alloc(list->list, list->allocated * sizeof *list->list);
     }
     list->count = 0;
 }
@@ -175,7 +175,7 @@ void addtomovelist(actlist *list, action move)
 {
     if (list->count >= list->allocated) {
 	list->allocated *= 2;
-	xalloc(list->list, list->allocated * sizeof *list->list);
+	x_alloc(list->list, list->allocated * sizeof *list->list);
     }
     list->list[list->count++] = move;
 }
@@ -188,7 +188,7 @@ void copymovelist(actlist *to, actlist const *from)
 	to->allocated = 16;
     while (to->allocated < from->count)
 	to->allocated *= 2;
-    xalloc(to->list, to->allocated * sizeof *to->list);
+    x_alloc(to->list, to->allocated * sizeof *to->list);
     to->count = from->count;
     if (from->count)
 	memcpy(to->list, from->list, from->count * sizeof *from->list);
@@ -362,7 +362,7 @@ int contractsolution(solutioninfo const *solution, gamesetup *game)
 {
     action const       *move;
     unsigned char      *data;
-    int			size, est, delta, when, i;
+    int			size, delta, when, i;
 
     free(game->solutiondata);
     game->solutionsize = 0;
@@ -382,7 +382,6 @@ int contractsolution(solutioninfo const *solution, gamesetup *game)
 		     " out of memory", game->number);
 	return FALSE;
     }
-    est = size;
 
     data[0] = game->number & 0xFF;
     data[1] = (game->number >> 8) & 0xFF;
@@ -562,7 +561,7 @@ static int opensolutionfile(fileinfo *file, char const *datname, int writable)
 				  && tolower(datname[n - 2]) == 'a'
 				  && tolower(datname[n - 1]) == 't')
 	    n -= 4;
-	xalloc(buf, n + 5);
+	x_alloc(buf, n + 5);
 	memcpy(buf, datname, n);
 	memcpy(buf + n, ".tws", 5);
 	filename = buf;
@@ -590,7 +589,7 @@ static int opensolutionfile(fileinfo *file, char const *datname, int writable)
  */
 int readsolutions(gameseries *series)
 {
-    gamesetup	gametmp;
+    gamesetup	gametmp = {0};
     int		n;
 
     if (!series->savefile.name)
@@ -608,7 +607,6 @@ int readsolutions(gameseries *series)
 			    &series->solheadersize, series->solheader))
 	return FALSE;
 
-    memset(&gametmp, 0, sizeof gametmp);
     for (;;) {
 	if (!readsolution(&series->savefile, &gametmp))
 	    break;
@@ -769,7 +767,7 @@ static int getsolutionfile(char *filename, void *data)
 
     if (!memcmp(filename, sdata->prefix, sdata->prefixlen)) {
 	n = strlen(filename) + 1;
-	xalloc(sdata->pool, sdata->allocated + n + 2);
+	x_alloc(sdata->pool, sdata->allocated + n + 2);
 	sdata->pool[sdata->allocated++] = '1';
 	sdata->pool[sdata->allocated++] = '-';
 	memcpy(sdata->pool + sdata->allocated, filename, n);
@@ -843,7 +841,7 @@ void freesolutionfilelist(char const **filelist, tablespec *table)
 {
     free(filelist);
     if (table) {
-	free(table->items[2]);
+	free((void*)table->items[2]);
 	free(table->items);
     }
 }

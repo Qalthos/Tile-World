@@ -68,7 +68,7 @@ static int storestring(char const *str)
     len = strlen(str) + 1;
     if (stringsused + len > stringsallocated) {
 	stringsallocated = stringsallocated ? 2 * stringsallocated : 256;
-	xalloc(strings, stringsallocated);
+	x_alloc(strings, stringsallocated);
 	if (!stringsused) {
 	    *strings = '\0';
 	    ++stringsused;
@@ -99,7 +99,7 @@ static int lookupsetname(char const *name, int add)
 
     if (namescount >= namesallocated) {
 	namesallocated = namesallocated ? 2 * namesallocated : 8;
-	xalloc(names, namesallocated * sizeof *names);
+	x_alloc(names, namesallocated * sizeof *names);
     }
     names[namescount] = storestring(name);
     return names[namescount++];
@@ -116,7 +116,7 @@ static int addtounslist(int setid, int levelnum,
 {
     if (listcount == listallocated) {
 	listallocated = listallocated ? listallocated * 2 : 16;
-	xalloc(unslist, listallocated * sizeof *unslist);
+	x_alloc(unslist, listallocated * sizeof *unslist);
     }
     unslist[listcount].setid = setid;
     unslist[listcount].levelnum = levelnum;
@@ -250,15 +250,14 @@ int markunsolvablelevels(gameseries *series)
  */
 int loadunslistfromfile(char const *filename)
 {
-    fileinfo	file;
+    fileinfo	file = {0};
 
-    memset(&file, 0, sizeof file);
     if (openfileindir(&file, resdir, filename, "r", NULL)) {
 	readunslist(&file);
 	fileclose(&file, NULL);
     }
     if (!haspathname(filename)) {
-	memset(&file, 0, sizeof file);
+	clearfileinfo(&file);
 	if (openfileindir(&file, savedir, filename, "r", NULL)) {
 	    readunslist(&file);
 	    fileclose(&file, NULL);

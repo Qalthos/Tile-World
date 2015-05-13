@@ -4,8 +4,8 @@
  * License. No warranty. See COPYING for details.
  */
 
-#ifndef	_state_h_
-#define	_state_h_
+#ifndef	HEADER_state_h_
+#define	HEADER_state_h_
 
 #include	"defs.h"
 
@@ -188,6 +188,38 @@ typedef struct creature {
 } creature;
 #endif
 
+/* Status information specific to the MS game logic.
+ */
+struct msstate_ {
+    unsigned char	chipwait;	/* ticks since Chip's last movement */
+    unsigned char	chipstatus;	/* Chip's status (one of CHIP_*) */
+    unsigned char	controllerdir;	/* current controller direction */
+    unsigned char	lastslipdir;	/* Chip's last involuntary movement */
+    unsigned char	completed;	/* level completed successfully */
+    short		goalpos;	/* mouse spot to move Chip towards */
+    signed char		xviewoffset;	/* offset of map view center */
+    signed char		yviewoffset;	/*   position from position of Chip */
+};
+
+/* Status information specific to the Lynx game logic.
+ */
+struct lxstate_ {
+    creature	       *chiptocr;	/* is Chip colliding with a creature */
+    creature	       *crend;		/* near the end of the creature list */
+    short		chiptopos;	/*   just starting to move itself? */
+    unsigned char	prng1;		/* the values used to make the */
+    unsigned char	prng2;		/*   pseudorandom number sequence */
+    signed char		xviewoffset;	/* offset of map view center */
+    signed char		yviewoffset;	/*   position from position of Chip */
+    unsigned char	endgametimer;	/* end-game countdown timer */
+    unsigned char	togglestate;	/* extra state of the toggle walls */
+    unsigned char	completed;	/* level completed successfully */
+    unsigned char	stuck;		/* Chip is stuck on a teleport */
+    unsigned char	pushing;	/* Chip is pushing against something */
+    unsigned char	couldntmove;	/* can't-move sound has been played */
+    unsigned char	mapbreached;	/* Border of map has been breached */
+};
+
 /*
  * The game state structure proper.
  */
@@ -225,7 +257,11 @@ typedef struct gamestate {
     short		crlist[256];		/* list of creatures */
     char		hinttext[256];		/* text of the hint */
     mapcell		map[CXGRID * CYGRID];	/* the game's map */
-    unsigned char	localstateinfo[256];	/* rule-specific state data */
+
+    /* Ruleset specific state. A union could be used to reduce memory, but
+       these are not large enough to make it worth it. */
+    struct msstate_ msstate;
+    struct lxstate_ lxstate;
 } gamestate;
 
 /* General status flags.

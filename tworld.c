@@ -1,6 +1,6 @@
 /* tworld.c: The top-level module.
  *
- * Copyright (C) 2001-2010 by Brian Raiter and Madhav Shanbhag,
+ * Copyright (C) 2001-2014 by Brian Raiter, Madhav Shanbhag, and Eric Schmidt,
  * under the GNU General Public License. No warranty. See COPYING for details.
  */
 
@@ -14,6 +14,7 @@
 #include	"res.h"
 #include	"play.h"
 #include	"score.h"
+#include	"settings.h"
 #include	"solution.h"
 #include	"unslist.h"
 #include	"help.h"
@@ -51,6 +52,12 @@ typedef	struct startupdata {
     int		listtimes;	/* TRUE if the times should be listed */
     int		batchverify;	/* TRUE to enter batch verification */
 } startupdata;
+
+/* History of levelsets in order of last used date/time.
+ */
+#define USEMAPFILENAME FALSE
+static history *historylist = NULL;
+static int	historycount = 0;
 
 /* Structure used to hold the complete list of available series.
  */
@@ -335,6 +342,7 @@ static int keyinputcallback(void)
 static int scrollinputcallback(int *move)
 {
     int cmd;
+
     switch ((cmd = input(TRUE))) {
       case CmdPrev10:		*move = SCROLL_HALFPAGE_UP;	break;
       case CmdNorth:		*move = SCROLL_UP;		break;
@@ -538,7 +546,7 @@ static void pushsubtitle(char const *subtitle)
 	subtitle = "";
     n = strlen(subtitle) + 1;
     stk = NULL;
-    xalloc(stk, sizeof(void**) + n);
+    x_alloc(stk, sizeof(void**) + n);
     *stk = subtitlestack;
     subtitlestack = stk;
     memcpy(stk + 1, subtitle, n);
@@ -564,7 +572,7 @@ static void changesubtitle(char const *subtitle)
     if (!subtitle)
 	subtitle = "";
     n = strlen(subtitle) + 1;
-    xalloc(subtitlestack, sizeof(void**) + n);
+    x_alloc(subtitlestack, sizeof(void**) + n);
     memcpy(subtitlestack + 1, subtitle, n);
     setsubtitle(subtitle);
 }
@@ -741,6 +749,124 @@ static int selectlevelbypassword(gamespec *gs)
 }
 
 /*
+ * The levelset history functions.
+ */
+
+/* Load the levelset history.
+ */
+static int loadhistory(void)
+{
+    fileinfo	file;
+    char	buf[256];
+    int		n;
+    char       *hdate, *htime, *hpasswd, *hnumber, *hname;
+    int		hyear, hmon, hmday, hhour, hmin, hsec;
+    history    *h;
+    
+    historycount = 0;
+    free(historylist);
+    
+    clearfileinfo(&file);
+    if (!openfileindir(&file, savedir, "history", "r", NULL))
+	return FALSE;
+
+    for (;;) {
+	n = sizeof buf - 1;
+	if (!filegetline(&file, buf, &n, NULL))
+	    break;
+	    
+	if (buf[0] == '#')
+	    continue;
+	    
+	hdate	= strtok(buf , " \t");
+	htime	= strtok(NULL, " \t");
+	hpasswd	= strtok(NULL, " \t");
+	hnumber	= strtok(NULL, " \t");
+	hname	= strtok(NULL, "\r\n");
+	
+	if ( ! (hdate && htime && hpasswd && hnumber && hname  &&
+		sscanf(hdate, "%d-%d-%d", &hyear, &hmon, &hmday) == 3  &&
+		sscanf(htime, "%d:%d:%d", &hhour, &hmin, &hsec) == 3  &&
+		*hpasswd  && *hnumber && *hname) )
+	    continue;
+	
+	++historycount;
+	x_alloc(historylist, historycount * sizeof *historylist);
+	h = historylist + historycount - 1;
+
+	sprintf(h->name, "%.*s", (int)(sizeof h->name - 1), hname);
+	sprintf(h->passwd, "%.*s", (int)(sizeof h->passwd - 1), hpasswd);
+	h->levelnumber = (int)strtol(hnumber, NULL, 0);
+	h->dt.tm_year  = hyear - 1900;
+	h->dt.tm_mon   = hmon - 1;
+	h->dt.tm_mday  = hmday;
+	h->dt.tm_hour  = hhour;
+	h->dt.tm_min   = hmin;
+	h->dt.tm_sec   = hsec;
+	h->dt.tm_isdst = -1;
+    }
+    
+    fileclose(&file, NULL);
+	
+    return TRUE;
+}
+
+/* Update the levelset history for the set and level being played.
+ */
+static void updatehistory(char const *name, char const *passwd, int number)
+{
+    time_t	t = time(NULL);
+    int		i, j;
+    history    *h;
+    
+    h = historylist;
+    for (i = 0; i < historycount; ++i, ++h) {
+	if (stricmp(h->name, name) == 0)
+	    break;
+    }
+    
+    if (i == historycount) {
+	++historycount;
+	x_alloc(historylist, historycount * sizeof *historylist);
+    }
+
+    for (j = i; j > 0; --j) {
+	historylist[j] = historylist[j-1];
+    }
+
+    h = historylist;
+    sprintf(h->name, "%.*s", (int)(sizeof h->name - 1), name);
+    sprintf(h->passwd, "%.*s", (int)(sizeof h->passwd - 1), passwd);
+    h->levelnumber = number;
+    h->dt = *localtime(&t);
+}
+
+/* Save the levelset history.
+ */
+static int savehistory(void)
+{
+    fileinfo	file;
+    history    *h;
+    int		i;
+    
+    clearfileinfo(&file);
+    if (!openfileindir(&file, savedir, "history", "w", NULL))
+	return FALSE;
+
+    h = historylist;
+    for (i = 0; i < historycount; ++i, ++h) {
+	fprintf(file.fp, "%04d-%02d-%02d %02d:%02d:%02d\t%s\t%d\t%s\n",
+		1900 + h->dt.tm_year, 1 + h->dt.tm_mon, h->dt.tm_mday,
+		h->dt.tm_hour, h->dt.tm_min, h->dt.tm_sec,
+		h->passwd, h->levelnumber, h->name);
+    }
+    
+    fileclose(&file, NULL);
+	
+    return TRUE;
+}
+
+/*
  * The game-playing functions.
  */
 
@@ -777,6 +903,7 @@ static int startinput(gamespec *gs)
 	  case CmdNext10:	leveldelta(+10);		return CmdNone;
 	  case CmdStepping:	changestepping(4, TRUE);	break;
 	  case CmdSubStepping:	changestepping(1, TRUE);	break;
+	  case CmdRandomFF:     advanceinitrandomff(TRUE);	break;
 	  case CmdVolumeUp:	changevolume(+2, TRUE);		break;
 	  case CmdVolumeDown:	changevolume(-2, TRUE);		break;
 	  case CmdHelp:		dohelp(Help_KeysBetweenGames);	break;
@@ -978,8 +1105,6 @@ static int playgame(gamespec *gs, int firstcmd)
 	      case CmdPrevLevel:		n = -1;		goto quitloop;
 	      case CmdNextLevel:		n = +1;		goto quitloop;
 	      case CmdSameLevel:		n = 0;		goto quitloop;
-	      case CmdDebugCmd1:				break;
-	      case CmdDebugCmd2:				break;
 	      case CmdQuit:					exit(0);
 	      case CmdVolumeUp:
 		changevolume(+2, TRUE);
@@ -1010,6 +1135,9 @@ static int playgame(gamespec *gs, int firstcmd)
 		setgameplaymode(ResumePlay);
 		cmd = CmdNone;
 		break;
+#ifndef NDEBUG
+	      case CmdDebugCmd1:				break;
+	      case CmdDebugCmd2:				break;
 	      case CmdCheatNorth:     case CmdCheatWest:	break;
 	      case CmdCheatSouth:     case CmdCheatEast:	break;
 	      case CmdCheatHome:				break;
@@ -1018,6 +1146,7 @@ static int playgame(gamespec *gs, int firstcmd)
 	      case CmdCheatBootsIce:  case CmdCheatBootsSlide:	break;
 	      case CmdCheatBootsFire: case CmdCheatBootsWater:	break;
 	      case CmdCheatICChip:				break;
+#endif
 	      default:
 		cmd = CmdNone;
 		break;
@@ -1052,7 +1181,7 @@ static int playbackgame(gamespec *gs)
 {
     int	render, lastrendered, n, cmd;
     int secondstoskip = -1, hideandseek = FALSE;
-    
+
     secondstoskip = getreplaysecondstoskip();
     
     drawscreen(TRUE);
@@ -1141,8 +1270,6 @@ static int playbackgame(gamespec *gs)
     if (n > 0) {
 	if (checksolution())
 	    savesolutions(&gs->series);
-	if (islastinseries(gs, gs->currentgame))
-	    n = 0;
     }
     gs->status = n;
     return TRUE;
@@ -1194,8 +1321,6 @@ static int verifyplayback(gamespec *gs)
 	if (checksolution())
 	    savesolutions(&gs->series);
 	setdisplaymsg(NULL, 0, 0);
-	if (islastinseries(gs, gs->currentgame))
-	    n = 0;
     }
     gs->status = n;
     return TRUE;
@@ -1217,6 +1342,13 @@ static int runcurrentlevel(gamespec *gs)
     int ret = TRUE;
     int	cmd;
     int	valid, f;
+    char const *name;
+
+    name = (USEMAPFILENAME ? gs->series.mapfilename : gs->series.filebase);
+
+    updatehistory(skippathname(name),
+		  gs->series.games[gs->currentgame].passwd,
+		  gs->series.games[gs->currentgame].number);
 
     if (gs->enddisplay) {
 	gs->enddisplay = FALSE;
@@ -1237,6 +1369,7 @@ static int runcurrentlevel(gamespec *gs)
 	    passwordseen(gs, gs->currentgame + 1);
 
     cmd = startinput(gs);
+
     if (cmd == CmdQuitLevel) {
 	ret = FALSE;
     } else {
@@ -1302,6 +1435,31 @@ static int batchverify(gameseries *series, int display)
 /*
  * Game selection functions
  */
+
+/* Set the current level to that specified in the history. */
+static void findlevelfromhistory(gamespec *gs, char const *name)
+{
+    int i, n;
+    history *h;
+
+    name = skippathname(name);
+    h = historylist;
+    for (i = 0; i < historycount; ++i, ++h) {
+	if (stricmp(h->name, name) == 0) {
+	    n = findlevelinseries(&gs->series, h->levelnumber, h->passwd);
+	    if (n < 0)
+	        n = findlevelinseries(&gs->series, 0, h->passwd);
+	    if (n >= 0)
+	    {
+	        gs->currentgame = n;
+	        if (gs->usepasswds &&
+			!(gs->series.games[n].sgflags & SGF_HASPASSWD))
+		    changecurrentgame(gs, -1);
+	    }
+	    break;
+	}
+    }
+}
 
 /* Display the full selection of available series to the user as a
  * scrolling list, and permit one to be selected. When one is chosen,
@@ -1384,6 +1542,12 @@ static int selectseriesandlevel(gamespec *gs, seriesdata *series, int autosel,
 		changecurrentgame(gs, -1);
 	}
     }
+
+    if (USEMAPFILENAME && gs->currentgame < 0)
+        findlevelfromhistory(gs, gs->series.mapfilename);
+    if (gs->currentgame < 0)
+        findlevelfromhistory(gs, gs->series.filebase);
+
     if (gs->currentgame < 0) {
 	gs->currentgame = 0;
 	for (n = 0 ; n < gs->series.count ; ++n) {
@@ -1631,8 +1795,11 @@ static int initializesystem(void)
     if (!initresources())
 	return FALSE;
     setkeyboardrepeat(TRUE);
+    if (volumelevel < 0)
+        volumelevel = getintsetting("volume");
     if (volumelevel >= 0)
 	setvolume(volumelevel, FALSE);
+
     return TRUE;
 }
 
@@ -1640,6 +1807,8 @@ static int initializesystem(void)
  */
 static void shutdownsystem(void)
 {
+    savehistory();
+    savesettings();
     shutdowngamestate();
     freeallresources();
     free(resdir);
@@ -1742,22 +1911,27 @@ int tworld(int argc, char *argv[])
     if (!initoptionswithcmdline(argc, argv, &start))
 	return EXIT_FAILURE;
 
+    loadhistory();
+    loadsettings();
+
     f = choosegameatstartup(&spec, &start);
     if (f < 0)
 	return EXIT_FAILURE;
     else if (f == 0)
 	return EXIT_SUCCESS;
 
-    do {
+    atexit(shutdownsystem);
+
+    while (f > 0) {
 	pushsubtitle(NULL);
-	while (runcurrentlevel(&spec)) ;
+	while (runcurrentlevel(&spec)) { }
+	savehistory();
 	popsubtitle();
 	cleardisplay();
 	strcpy(lastseries, spec.series.filebase);
 	freeseriesdata(&spec.series);
 	f = choosegame(&spec, lastseries);
-    } while (f > 0);
+    };
 
-    shutdownsystem();
-    return f == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
+    return (f == 0 ? EXIT_SUCCESS : EXIT_FAILURE);
 }

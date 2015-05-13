@@ -4,8 +4,8 @@
  * under the GNU General Public License. No warranty. See COPYING for details.
  */
 
-#ifndef	_generic_h_
-#define	_generic_h_
+#ifndef	HEADER_generic_h_
+#define	HEADER_generic_h_
 
 #include "oshwbind.h"
 

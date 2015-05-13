@@ -56,8 +56,7 @@ Before proceeding, ensure that you have Qt 4 and SDL installed on your machine.
 http://www.libsdl.org/download.html. If you download a precompiled version
 -- i.e., an .rpm or .deb file -- note that you will need the development
 runtime, as opposed to the binary runtime.)
-Tile World has been tested with Qt 4.5.3, although Qt 4.4 should also work.
-Earlier versions of Qt may not work.
+Tile World has been tested with Qt 4.8. Earlier versions of Qt may not work.
 
 Installing Tile World involves the following steps:
 
@@ -119,11 +118,10 @@ set and you wish to use it, just copy it to Tile World's sets directory.
 The next time you start Tile World, the new .dat should appear in the list
 of available level sets.
 
-At http://groups.yahoo.com/group/chips_challenge/files/ is a repository of
-the available level sets that have been created. The biggest fans of the
-game try to provide a copy of every known user-created level set at this
-place. I have not included any of these level sets in this distribution, as
-the authors continue to add new levels to their sets over time.
+At http://www.pillowpc2001.net/levels/ is a list of the available
+level sets that have been created. I have not included any of these
+level sets in this distribution, as the authors continue to add new
+levels to their sets over time.
 
 Actually, this distribution does contain one small level set. This is
 included so that even if you don't have the original level set, you can
@@ -131,20 +129,27 @@ still get a brief glimpse of how the game works, and what some of the most
 basic challenges are. Also, the same set of levels can be played with both
 the MS and Lynx ruleset, so you can see how they differ.
 
-Finally, there are some special level sets that deserve particular mention.
-They are CCLP2.dat and CCLP3.dat, or "Chip's Challenge Level Pack 2 and 3".
-These sets were assembled by the fans, who voted on all of the user-created
-levels that existed at the time when each was compiled. The levels that were
-voted as being the most fun were then all put together. They are the closest
-things we have to sequels for the original game.
-(But be careful: they are both much harder than the original!)
+Finally, there are some special level sets that deserve particular
+mention.  They are CCLP2.dat and CCLP3.dat "Chip's Challenge Level
+Packs 2 and 3".  These sets were assembled by the fans, who voted on
+which levels to include. The levels that were voted as being the most
+fun were then all put together. They are the closest things we have to
+sequels for the original game.  (But be careful: they are both much
+harder than the original!)
+
+Also, there is CCLP1.dat. This set is especially intended for people
+new to the game, conceived of as a replacement of the original
+chips.dat for those who do not have it.
+
 You can download a copy of Tile World with these sets already
-installed. If instead you download them separately, you will want to store them
-in your data directory instead of your sets directory. (This is because
-Tile World comes with special configuration files for CCLP2 and CCLP3.)
-Note that only some levels in CCLP2 can be played under the Lynx ruleset.
-CCLP3, on the other hand, had compatibility with both rulesets as a criterion,
-and hence all of its levels can be enjoyed in the ruleset of your choice.
+installed. If instead you download them separately, you will want to
+store them in your data directory instead of your sets
+directory. (This is because Tile World comes with special
+configuration files for CCLP1, CCLP2, and CCLP3.)  Note that only some
+levels in CCLP2 can be played under the Lynx ruleset.  CCLP1 and
+CCLP3, on the other hand, had compatibility with both rulesets as a
+criterion, and hence all of its levels can be enjoyed in the ruleset
+of your choice.
 
   The Complete Documentation
 
@@ -189,7 +194,7 @@ level set and CCLP2, as well as information on other levels and links to
 many other pages. (But it hasn't been updated in a long time.)
 
   http://www.geocities.com/purpletentacle1977ca/
-  
+
 Mike L's Chip's Challenge hosts CCLP2 and CCLP3 and has links to almost
 every custom level set available.
 
@@ -200,7 +205,7 @@ repository and a web interface to the newsgroup:
 
   http://chips.kaseorg.com/
 
-The grand repository of user-created level sets can be found at the
+Many (but not all) user-created level sets can be found at the
 chips_challenge Yahoo group:
 
   http://groups.yahoo.com/group/chips_challenge/files/
@@ -219,23 +224,24 @@ This latest version - Tile World 2 - is being maintained at:
 
   License
 
-Tile World is copyright (C) 2001-2010 by Brian Raiter and Madhav Shanbhag.
-This program is free software; you can redistribute it and/or modify it under
-the terms of the GNU General Public License as published by the
-Free Software Foundation; either version 2 of the License, or (at your option)
-any later version.
-This program is distributed in the hope that it will be useful, but WITHOUT
+Tile World is copyright (C) 2001-2014 by Brian Raiter, Madhav
+Shanbhag, and Eric Schmidt.  This program is free software; you can
+redistribute it and/or modify it under the terms of the GNU General
+Public License as published by the Free Software Foundation; either
+version 2 of the License, or (at your option) any later version.  This
+program is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License,
 included in this distribution in the file COPYING, for more details.
 
   Bugs
 
-Bug reports are always appreciated, and can be sent to Madhav Shanbhag at
-CrapulentCretin@Yahoo.com. The list of known bugs is at
-http://www.muppetlabs.com/~breadbox/software/tworld/BUGS.html. Please check
-here before sending a bug report, to to make sure the bug has not already
-been documented.
+Bug reports are always appreciated, and can be sent to Madhav Shanbhag
+at CrapulentCretin@Yahoo.com, or to Eric Schmidt at
+eric41293@comcast.net. The list of known bugs is at
+http://www.muppetlabs.com/~breadbox/software/tworld/BUGS.html. Please
+check here before sending a bug report, to to make sure the bug has
+not already been documented.
 
   Credits
 
@@ -243,6 +249,8 @@ Tile World was written by Brian Raiter.
 
 Tile World 2 - which simply improves upon the user interface of the original
 Tile World program - was developed by Madhav Shanbhag.
+
+Version 2.1 was produced by Eric Schmidt.
 
 The sound effects included in this distribution were created by Brian
 Raiter, with assistance from SoX. Brian Raiter has explictly placed these

@@ -1,5 +1,5 @@
-#ifdef __TWPLUSPLUS
-	#define	VERSION		"2.0.0"
+#ifdef TWPLUSPLUS
+        #define VERSION         "2.1.0"
 #else
-	#define	VERSION		"1.3.1"
+        #define VERSION         "1.4.0"
 #endif

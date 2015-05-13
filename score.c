@@ -104,7 +104,7 @@ int createscorelist(gameseries const *series, int usepasswds, char zchar,
 		    int **plevellist, int *pcount, tablespec *table)
 {
     gamesetup  *game;
-    char      **ptrs;
+    char const **ptrs;
     char       *textheap;
     char       *blank;
     int	       *levellist = NULL;
@@ -229,7 +229,7 @@ int createtimelist(gameseries const *series, int showpartial, char zchar,
 		   int **plevellist, int *pcount, tablespec *table)
 {
     gamesetup	       *game;
-    char	      **ptrs;
+    char const	      **ptrs;
     char	       *textheap;
     char	       *untimed;
     int		       *levellist = NULL;
@@ -326,7 +326,7 @@ void freescorelist(int *levellist, tablespec *table)
 {
     free(levellist);
     if (table) {
-	free(table->items[0]);
+	free((void*)table->items[0]);
 	free(table->items);
     }
 }

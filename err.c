@@ -9,45 +9,45 @@
 #include	"oshw.h"
 #include	"err.h"
 
-/* "Hidden" arguments to _warn, _errmsg, and _die.
+/* "Hidden" arguments to warn_, errmsg_, and die_.
  */
-char const      *_err_cfile = NULL;
-unsigned long	_err_lineno = 0;
+char const      *err_cfile_ = NULL;
+unsigned long	err_lineno_ = 0;
 
 /* Log a warning message.
  */
-void _warn(char const *fmt, ...)
+void warn_(char const *fmt, ...)
 {
     va_list	args;
 
     va_start(args, fmt);
-    usermessage(NOTIFY_LOG, NULL, _err_cfile, _err_lineno, fmt, args);
+    usermessage(NOTIFY_LOG, NULL, err_cfile_, err_lineno_, fmt, args);
     va_end(args);
-    _err_cfile = NULL;
-    _err_lineno = 0;
+    err_cfile_ = NULL;
+    err_lineno_ = 0;
 }
 
 /* Display an error message to the user.
  */
-void _errmsg(char const *prefix, char const *fmt, ...)
+void errmsg_(char const *prefix, char const *fmt, ...)
 {
     va_list	args;
 
     va_start(args, fmt);
-    usermessage(NOTIFY_ERR, prefix, _err_cfile, _err_lineno, fmt, args);
+    usermessage(NOTIFY_ERR, prefix, err_cfile_, err_lineno_, fmt, args);
     va_end(args);
-    _err_cfile = NULL;
-    _err_lineno = 0;
+    err_cfile_ = NULL;
+    err_lineno_ = 0;
 }
 
 /* Display an error message to the user and exit.
  */
-void _die(char const *fmt, ...)
+void die_(char const *fmt, ...)
 {
     va_list	args;
 
     va_start(args, fmt);
-    usermessage(NOTIFY_DIE, NULL, _err_cfile, _err_lineno, fmt, args);
+    usermessage(NOTIFY_DIE, NULL, err_cfile_, err_lineno_, fmt, args);
     va_end(args);
     exit(EXIT_FAILURE);
 }

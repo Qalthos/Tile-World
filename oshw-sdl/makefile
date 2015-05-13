@@ -29,7 +29,7 @@ sdlerr.o  : sdlerr.c sdlgen.h generic.h oshwbind.h ../gen.h ../oshw.h
 sdloshw.o : sdloshw.c sdlgen.h sdlsfx.h generic.h oshwbind.h ccicon.c ../gen.h \
             ../oshw.h ../err.h
 sdltext.o : sdltext.c sdlgen.h generic.h oshwbind.h ../gen.h ../oshw.h ../err.h
-sdlsfx.o  : sdlsfx.c sdlsfx.h ../gen.h ../oshw.h ../err.h ../defs.h ../state.h
+sdlsfx.o  : sdlsfx.c sdlsfx.h ../gen.h ../oshw.h ../err.h ../defs.h ../state.h ../settings.h
 sdlin.o   : sdlin.c sdlgen.h generic.h oshwbind.h ../gen.h ../oshw.h ../defs.h
 sdlout.o  : sdlout.c sdlgen.h generic.h oshwbind.h ../gen.h ../oshw.h ../err.h \
             ../defs.h ../state.h

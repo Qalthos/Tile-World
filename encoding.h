@@ -4,8 +4,8 @@
  * License. No warranty. See COPYING for details.
  */
 
-#ifndef	_encoding_h_
-#define	_encoding_h_
+#ifndef	HEADER_encoding_h_
+#define	HEADER_encoding_h_
 
 #include	"state.h"
 

@@ -4,8 +4,8 @@
  * License. No warranty. See COPYING for details.
  */
 
-#ifndef	_random_h_
-#define	_random_h_
+#ifndef	HEADER_random_h_
+#define	HEADER_random_h_
 
 #include	"defs.h"
 

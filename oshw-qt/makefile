@@ -68,7 +68,7 @@ TWDisplayWidget.o: TWDisplayWidget.h
 TWProgressBar.o: TWProgressBar.h
 
 DEPS = TWApp.h TWMainWnd.h ui_TWMainWnd.h TWProgressBar.h TWDisplayWidget.h CCMetaData.h \
-	   generic.h oshwbind.h ../gen.h ../defs.h ../state.h ../play.h ../oshw.h
+	   generic.h oshwbind.h ../gen.h ../defs.h ../state.h ../play.h ../oshw.h ../settings.h ../messages.h
 
 TWMainWnd.o: TWMainWnd.cpp $(DEPS)
 

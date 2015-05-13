@@ -4,8 +4,8 @@
  * under the GNU General Public License. No warranty. See COPYING for details.
  */
 
-#ifndef	_sdlgen_h_
-#define	_sdlgen_h_
+#ifndef	HEADER_sdlgen_h_
+#define	HEADER_sdlgen_h_
 
 #include	"SDL.h"
 #include	"../gen.h"

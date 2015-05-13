@@ -10,6 +10,7 @@
 #include	"SDL.h"
 #include	"sdlsfx.h"
 #include	"../err.h"
+#include	"../settings.h"
 #include	"../state.h"
 
 /* Some generic default settings for the audio output.
@@ -336,6 +337,7 @@ int setvolume(int v, int display)
     if (!volume && v)
 	displaysoundeffects(0, FALSE);
     volume = (SDL_MIX_MAXVOLUME * v + 9) / 10;
+    setintsetting("volume", v);
     if (display) {
 	sprintf(buf, "Volume: %d", v);
 	setdisplaymsg(buf, 1000, 1000);

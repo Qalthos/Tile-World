@@ -4,8 +4,8 @@
  * under the GNU General Public License. No warranty. See COPYING for details.
  */
 
-#ifndef	_logic_h_
-#define	_logic_h_
+#ifndef	HEADER_logic_h_
+#define	HEADER_logic_h_
 
 #include	"state.h"
 

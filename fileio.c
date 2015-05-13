@@ -1,7 +1,7 @@
 /* fileio.c: Simple file/directory access functions with error-handling.
  *
- * Copyright (C) 2001-2006 by Brian Raiter, under the GNU General Public
- * License. No warranty. See COPYING for details.
+ * Copyright (C) 2001-2014 by Brian Raiter and Eric Schmidt, under the
+ * GNU General Public License. No warranty. See COPYING for details.
  */
 
 #include	<stdio.h>
@@ -46,13 +46,13 @@
 
 /* The function used to display error messages relating to file I/O.
  */
-int _fileerr(char const *cfile, unsigned long lineno,
+int fileerr_(char const *cfile, unsigned long lineno,
 	     fileinfo *file, char const *msg)
 {
     if (msg) {
-	_err_cfile = cfile;
-	_err_lineno = lineno;
-	_errmsg(file->name ? file->name : "file error",
+	err_cfile_ = cfile;
+	err_lineno_ = lineno;
+	errmsg_(file->name ? file->name : "file error",
 		errno ? strerror(errno) : msg);
     }
     return FALSE;
@@ -69,6 +69,13 @@ void clearfileinfo(fileinfo *file)
     file->name = NULL;
     file->fp = NULL;
     file->alloc = FALSE;
+}
+
+/* Determine whether a file exists */
+int fileexists(char const * name)
+{
+    struct stat buf;
+    return !stat(name, &buf);
 }
 
 /* Open a file. If the fileinfo structure does not already have a
@@ -227,6 +234,108 @@ int filegetline(fileinfo *file, char *buf, int *len, char const *msg)
     return TRUE;
 }
 
+/* Read an integer value from a config file */
+int filegetconfiglineint(fileinfo *file, char const *name, int * value,
+			     char const *msg)
+{
+    char buf[512];
+    int len = sizeof buf;
+    int namelen = strlen(name);
+    long res;
+
+    if (namelen >= sizeof buf)
+        return FALSE;
+
+    while (filegetline(file, buf, &len, msg))
+    {
+        if (!strncmp(buf, name, namelen) && buf[namelen] == '=')
+        {
+             errno = 0;
+             res = strtol(buf + namelen + 1, NULL, 10);
+             if (errno || res > INT_MAX || res < INT_MIN)
+                 return FALSE;
+             *value = (int)res;
+             return TRUE;
+        }
+        len = sizeof buf;
+    }
+
+    return FALSE;
+}
+
+static int filedataomittingname
+    (fileinfo* file, char const * name, char **data)
+{
+    char buf[512];
+    int len = sizeof buf;
+    char *fdata = NULL;
+    int fdatasize = 0;
+    int const allocchunk = 1024;
+    int fdatalen = 0;
+
+    int const namelen = strlen(name);
+
+    if (namelen >= sizeof buf)
+        return FALSE;
+
+    while (filegetline(file, buf, &len, NULL))
+    {
+        if (buf[len] != '\n')
+        {
+            free(fdata);
+            return fileerr(file, "Long line");
+        }
+        len++; /* Include newline in length */
+
+        /* Save line if it isn't the one we need to update.
+           Otherwise discard it. */
+        if (strncmp(buf, name, namelen) || buf[namelen] != '=')
+        {
+             if (fdatalen + len >= fdatasize)
+             {
+                 fdatasize += allocchunk;
+                 x_alloc(fdata, fdatasize);
+             }
+             strcpy(fdata + fdatalen, buf);
+             fdatalen += len;
+        }
+
+        len = sizeof buf;
+    }
+    *data = fdata;
+    return TRUE;
+}
+
+/* Update an integer config line in a file */
+int updateconfiglineint(char const *fname, char const *name, int value)
+{
+    fileinfo file = {0};
+    char *fdata = NULL;
+ 
+    if (fileexists(fname))
+    {
+        if (!fileopen(&file, fname, "r", NULL))
+            return FALSE;
+        if (!filedataomittingname(&file, name, &fdata))
+        {
+            fileclose(&file, NULL);
+            return FALSE;
+        }
+        fileclose(&file, NULL);
+    }
+
+    if (!fileopen(&file, fname, "w", NULL))
+        { free(fdata); return FALSE; }
+
+    fprintf(file.fp, "%s=%d\n", name, value);
+    if (fdata)
+        fputs(fdata, file.fp);
+
+    fileclose(&file, NULL);
+    free(fdata);
+    return TRUE;
+}
+
 /* write().
  */
 int filewrite(fileinfo *file, void const *data, unsigned long size,
@@ -299,13 +408,13 @@ int filereadint32(fileinfo *file, unsigned long *val32, char const *msg)
 
     errno = 0;
     if ((byte = fgetc(file->fp)) != EOF) {
-	*val32 = (unsigned char)byte;
+	*val32 = (unsigned int)byte;
 	if ((byte = fgetc(file->fp)) != EOF) {
-	    *val32 |= (unsigned char)byte << 8;
+	    *val32 |= (unsigned int)byte << 8;
 	    if ((byte = fgetc(file->fp)) != EOF) {
-		*val32 |= (unsigned char)byte << 16;
+		*val32 |= (unsigned int)byte << 16;
 		if ((byte = fgetc(file->fp)) != EOF) {
-		    *val32 |= (unsigned char)byte << 24;
+		    *val32 |= (unsigned int)byte << 24;
 		    return TRUE;
 		}
 	    }
@@ -489,7 +598,7 @@ int findfiles(char const *dir, void *data,
     while ((dent = readdir(dp))) {
 	if (dent->d_name[0] == '.')
 	    continue;
-	xalloc(filename, strlen(dent->d_name) + 1);
+	x_alloc(filename, strlen(dent->d_name) + 1);
 	strcpy(filename, dent->d_name);
 	r = (*filecallback)(filename, data);
 	if (r < 0)

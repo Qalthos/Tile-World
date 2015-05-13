@@ -4,8 +4,8 @@
  * License. No warranty. See COPYING for details.
  */
 
-#ifndef	_help_h_
-#define	_help_h_
+#ifndef	HEADER_help_h_
+#define	HEADER_help_h_
 
 /* The available help topics.
  */

@@ -4,10 +4,11 @@
  * under the GNU General Public License. No warranty. See COPYING for details.
  */
 
-#ifndef	_defs_h_
-#define	_defs_h_
+#ifndef	HEADER_defs_h_
+#define	HEADER_defs_h_
 
 #include	<stdio.h>
+#include	<time.h>
 #include	"gen.h"
 
 /*
@@ -59,8 +60,8 @@ typedef struct actlist {
  * (Mouse moves are stored as a relative offset in order to fit all
  * possible moves in nine bits.)
  */
-#define	MOUSERANGEMIN	-9
-#define	MOUSERANGEMAX	+9
+#define	MOUSERANGEMIN	(-9)
+#define	MOUSERANGEMAX	(+9)
 #define	MOUSERANGE	19
 
 /* The complete list of commands that the user can given.
@@ -104,12 +105,16 @@ enum {
     CmdVolumeDown,
     CmdStepping,
     CmdSubStepping,
+    CmdRandomFF,
     CmdProceed,
+#ifndef NDEBUG
     CmdDebugCmd1,
     CmdDebugCmd2,
+#endif
     CmdQuit,
     CmdPreserve,
     CmdSeek,
+#ifndef NDEBUG
     CmdCheatNorth,
     CmdCheatWest,
     CmdCheatSouth,
@@ -124,6 +129,7 @@ enum {
     CmdCheatBootsFire,
     CmdCheatBootsWater,
     CmdCheatICChip,
+#endif
     CmdCount
 };
 
@@ -192,6 +198,15 @@ typedef	struct gamesetup {
 #define	SGF_HASPASSWD		0x0001	/* player knows the level's password */
 #define	SGF_REPLACEABLE		0x0002	/* solution is marked as replaceable */
 #define	SGF_SETNAME		0x0004	/* internal to solution.c */
+
+/* The history for the last time a levelset was played.
+ */
+typedef	struct history {
+    char		name[256];	/* the set filename minus any path */
+    char		passwd[256];	/* password of the last played level */
+    int	   		levelnumber;	/* number of the last played level */
+    struct tm		dt;		/* date/time set was last played */
+} history;
 
 /* The collection of data maintained for each series.
  */

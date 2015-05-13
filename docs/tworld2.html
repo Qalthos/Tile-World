@@ -258,6 +258,8 @@ will automatically be deprecated.</td></tr>
 <td>toggles between even-step and odd-step offset.</td></tr>
 <tr><td><tt>Shift</tt>-<tt>O</tt>&nbsp;</td>
 <td>(Lynx-mode only) increments the stepping offset by one.</td></tr>
+<tr><td><tt>F</tt>&nbsp;</td>
+<td>(Lynx-mode only) changes the initial direction for the "random" force floors.</td></tr>
 <tr><td><tt>Ctrl</tt>-<tt>X</tt>&nbsp;</td>
 <td>deprecates the best solution for that level. If the level is then
 succesfully completed again, the saved solution will be replaced with
@@ -310,11 +312,14 @@ Adding New Level Sets
 </h3>
 <p>
 Level sets are defined by data files. By convention these file are
-named with a <tt>.dat</tt> extension. Typically the name proper contains
-the author's first name, last initial, and a single digit -- for
-example, <tt>EricS1.dat</tt>. (The digit is used to give the sequence in
-case the author, for whatever reason, stores their creations in more
-than one file.)
+named with a <tt>.dat</tt> or <tt>.ccl</tt> extension. Classically, the name proper
+contains the author's first name, last initial, and a single digit --
+for example, a set by someone named Bob Nomo could be called
+<tt>BobN1.dat</tt>. (The digit is used to give the sequence in case the author,
+for whatever reason, stores their creations in more than one file.)
+Some more recent level sets do not follow this naming pattern,
+however, so it is not always easy to find out the author from the
+set's name.
 <p>
 When a new data file is obtained, it may simply be copied into the
 level set directory (cf <a href="#6">Directories</a>), and Tile World will then make
@@ -335,9 +340,7 @@ chosen, the program jumps to the first unsolved level to begin
 play.
 <p>
 The available command-line options are enumerated in the following
-table. (Windows users: The options that cause the program to display
-information on standard output actually go to a file named
-<tt>stdout.txt</tt> instead.)
+table.
 <p>
 <table>
 <tr><td><tt>-a</tt>&nbsp;</td>
@@ -370,7 +373,7 @@ exit.</td></tr>
 <td>Write a list of available level sets to standard output and exit.</td></tr>
 <tr><td><tt>-n</tt>&nbsp;<i>N</i>&nbsp;</td>
 <td>Set the initial volume level to <i>N</i>, 0 being silence and 10 being
-full volume. The default level is 10.</td></tr>
+full volume.</td></tr>
 <tr><td><tt>-P</tt>&nbsp;</td>
 <td>Turn on pedantic mode, forcing the Lynx ruleset to emulate the
 original game as closely as possible. (See the Tile World website for
@@ -387,7 +390,7 @@ to the solution files.</td></tr>
 <tr><td><tt>-R</tt>&nbsp;<i>DIR</i>&nbsp;</td>
 <td>Read resource data from <i>DIR</i> instead of the default directory.</td></tr>
 <tr><td><tt>-S</tt>&nbsp;<i>DIR</i>&nbsp;</td>
-<td>Read and write solution files under <i>DIR</i> instead of the default
+<td>Read and write solution files (and other saved data) under <i>DIR</i> instead of the default
 directory.</td></tr>
 <tr><td><tt>-s</tt>&nbsp;</td>
 <td>Display the current scores for the selected level set on standard
@@ -475,6 +478,26 @@ the program to undo those changes, so that the original Lynx level set
 is obtained. (The changes made in the MS version were: an extra level
 was added; four passwords were garbled; and four or five levels' maps
 had minor alterations.)
+<a name="ccx"></a>
+<h3>CCX Files</h3>
+The data directory may contain a file with the same name as a level
+set, but with a <tt>.ccx</tt> extension. This file can be used to specify
+various data, such as ruleset compatibility and authorship (both for
+the entire set and for individual levels. It is also possible to
+specify text displayed when reaching or completing levels. This can be
+used to give an ongoing story for a level set, or for other
+purposes. Detailed documentation does not currently exist. One way to
+produce a CCX file for a set is to emulate the structure of an
+existing one (such as that for CCLP1 or CCLP3). You can also use the
+"CCX File Editor" by Mike Lask.
+<p>
+Some people may wish not to view text associated with levels. This can
+be controlled using the "Auto-display Level Text" menu under
+"Options". Whether or not this option is enabled, level text can be
+viewed using the "View Prologue" (for text displayed when visiting a
+level) and "View Epilogue" (for text displayed when completing a
+level). The epilogue is only available for levels that have been
+completed.
 <p>
 <a name="4"></a>
 <h3>
@@ -532,6 +555,16 @@ identifies the filename for the database of unsolvable levels. See
 <a href="#5">Database of Unsolvable Levels</a> below for more information about this
 file. Note that this resource must be defined independent of the
 ruleset, or else it will be ignored.
+<p>
+A line of the form
+<p>
+<tt>EndMessages = </tt><i>FILENAME</i>
+<p>
+identifies the filename for the messages displayed when losing or
+winning a level. See <a href="#messages">End of Level Messages</a>
+below for more information about this file. Note that this resource
+must be defined independent of the ruleset, or else it will be
+ignored.
 <p>
 Four resources define the colors used in rendering text:
 <p>
@@ -623,7 +656,36 @@ The offending levels are identified by content as well as by name and
 number, so that updated versions will no longer be identified as
 unsolvable. See the Tile World website for more information about the
 format of this file, and to check for updates to the database.
+<a name ="messages"></a>
+<h3>End of Level Messages</h3>
+<p>When you win or lose a level, Tile World displays a message. These
+messages can be customized using a file in the resource directory,
+whose default name is messages.txt. This file can contain an umlimited
+number of messages for Tile World to choose from. The file consists of
+sections of the form
 <p>
+<tt>:</tt> <i>messagetypes</i>
+<br> <i>message</i>
+<br> <i>message</i>
+<p>
+Here, <i>messagetypes</i>
+can contain any of <tt>die</tt> (for when the player dies), <tt>time</tt> (for when
+the player runs out of time), or <tt>win</tt> (for when the player completes
+the level. It is possible to specify more than one type. For example,
+the file
+<p>
+<tt>:die time</tt>
+<br> <tt>Message 1</tt>
+<br> <tt>Message 2</tt>
+<br> <tt>:die</tt>
+<br> <tt>Message 3</tt>
+<br> <tt>:win</tt>
+<br> <tt>Message 4</tt>
+<p>
+specifies that either <tt>Message 1</tt> or <tt>Message 2</tt> can be displayed when
+the player dies or runs out of time, <tt>Message 3</tt> can only be displayed
+upon death, and <tt>Message 4</tt> can only be displayed when the level is
+won.
 <a name="6"></a>
 <h3>
 Directories
@@ -649,7 +711,8 @@ configuration files. (default for Linux:
 <td>This directory stores the graphics and sound files used by the
 program. (default for Linux: <tt>/usr/local/share/tworld/res</tt>)</td></tr>
 <tr><td>Save&nbsp;</td>
-<td>This directory is used for saving solution files. (default for
+<td>This directory is used for saving solution files, and
+settings. (default for
 Linux: <tt>~/.tworld</tt>)</td></tr>
 </table>
 <p>
@@ -676,7 +739,8 @@ the resource, level set, and data file directories.</td></tr>
 License
 </h3>
 <p>
-Tile World is copyright (C) 2001-2010 by Brian Raiter and Madhav Shanbhag.
+Tile World is copyright (C) 2001-2014 by Brian Raiter, Madhav
+Shanbhag, and Eric Schmidt.
 <p>
 This program is free software; you can redistribute it and/or  
 modify it under the terms of the GNU General Public License as 
@@ -688,7 +752,7 @@ This program is distributed in the hope that it will be useful, but
 <strong>merchantability</strong> or <strong>fitness for a particular purpose</strong>. See the GNU
 General Public License for more details.
 <p>
-Please send bug reports to CrapulentCretin@Yahoo.com.
+Please send bug reports to CrapulentCretin@Yahoo.com or eric41293@comcast.net.
 <p>
 <hr>
 <p>
@@ -746,6 +810,8 @@ encouragement of Chuck Sommerville, this project was expanded to
 include the goals of recreating the original Lynx game as well, and
 also making the program work under MS Windows in addition to Linux.
 <p>
+In 2010, Madhav Shanbhag produced "Tile World 2", which had several
+new features. In 2014, Eric Schmidt produced version 2.1.
 <hr>
 <p>
 <a name="15"></a>

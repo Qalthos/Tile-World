@@ -1,7 +1,7 @@
 /* lxlogic.c: The game logic for the Lynx ruleset.
  *
- * Copyright (C) 2001-2006 by Brian Raiter, under the GNU General Public
- * License. No warranty. See COPYING for details.
+ * Copyright (C) 2001-2014 by Brian Raiter and Eric Schmidt, under the GNU
+ * General Public License. No warranty. See COPYING for details.
  */
 
 #include	<stdlib.h>
@@ -30,14 +30,14 @@
  */
 #define	isdiagonal(dir)	(((dir) & (NORTH | SOUTH)) && ((dir) & (EAST | WEST)))
 
-/* My internal assertion macro.
+/* Internal assertion macro.
  */
 #ifdef NDEBUG
 #define	_assert(test)	((void)0)
 #else
 #define	_assert(test)	((test) || (die("internal error: failed sanity check" \
 				        " (%s)\nPlease report this error to"  \
-				        " breadbox@muppetlabs.com", #test), 0))
+				        " eric41293@comcast.net", #test), 0))
 #endif
 
 /* A list of ways for Chip to lose.
@@ -46,25 +46,6 @@ enum {
     CHIP_OKAY = 0,
     CHIP_DROWNED, CHIP_BURNED, CHIP_BOMBED, CHIP_OUTOFTIME, CHIP_COLLIDED,
     CHIP_NOTOKAY
-};
-
-/* Status information specific to the Lynx game logic.
- */
-struct lxstate {
-    creature	       *chiptocr;	/* is Chip colliding with a creature */
-    creature	       *crend;		/* near the end of the creature list */
-    short		chiptopos;	/*   just starting to move itself? */
-    unsigned char	prng1;		/* the values used to make the */
-    unsigned char	prng2;		/*   pseudorandom number sequence */
-    signed char		xviewoffset;	/* offset of map view center */
-    signed char		yviewoffset;	/*   position from position of Chip */
-    unsigned char	endgametimer;	/* end-game countdown timer */
-    unsigned char	togglestate;	/* extra state of the toggle walls */
-    unsigned char	completed;	/* level completed successfully */
-    unsigned char	stuck;		/* Chip is stuck on a teleport */
-    unsigned char	pushing;	/* Chip is pushing against something */
-    unsigned char	couldntmove;	/* can't-move sound has been played */
-    unsigned char	mapbreached;	/* Border of map has been breached */
 };
 
 /* Pedantic mode flag. (Having this variable defined here is a hack,
@@ -137,26 +118,26 @@ static gamestate       *state;
 #define	traplist()		(state->traps)
 #define	traplistsize()		(state->trapcount)
 
-#define	getlxstate()		((struct lxstate*)state->localstateinfo)
+#define	getlxstate()		(state->lxstate)
 
-#define	completed()		(getlxstate()->completed)
-#define	togglestate()		(getlxstate()->togglestate)
-#define	couldntmove()		(getlxstate()->couldntmove)
-#define	chippushing()		(getlxstate()->pushing)
-#define	chipstuck()		(getlxstate()->stuck)
-#define	mapbreached()		(getlxstate()->mapbreached)
-#define	chiptopos()		(getlxstate()->chiptopos)
-#define	chiptocr()		(getlxstate()->chiptocr)
-#define	prngvalue1()		(getlxstate()->prng1)
-#define	prngvalue2()		(getlxstate()->prng2)
-#define	xviewoffset()		(getlxstate()->xviewoffset)
-#define	yviewoffset()		(getlxstate()->yviewoffset)
-#define	creaturelistend()	(getlxstate()->crend)
+#define	completed()		(getlxstate().completed)
+#define	togglestate()		(getlxstate().togglestate)
+#define	couldntmove()		(getlxstate().couldntmove)
+#define	chippushing()		(getlxstate().pushing)
+#define	chipstuck()		(getlxstate().stuck)
+#define	mapbreached()		(getlxstate().mapbreached)
+#define	chiptopos()		(getlxstate().chiptopos)
+#define	chiptocr()		(getlxstate().chiptocr)
+#define	prngvalue1()		(getlxstate().prng1)
+#define	prngvalue2()		(getlxstate().prng2)
+#define	xviewoffset()		(getlxstate().xviewoffset)
+#define	yviewoffset()		(getlxstate().yviewoffset)
+#define	creaturelistend()	(getlxstate().crend)
 
-#define	inendgame()		(getlxstate()->endgametimer)
-#define	startendgametimer()	(getlxstate()->endgametimer = 12 + 1)
-#define	decrendgametimer()	(--getlxstate()->endgametimer)
-#define	resetendgametimer()	(getlxstate()->endgametimer = 0)
+#define	inendgame()		(getlxstate().endgametimer)
+#define	startendgametimer()	(getlxstate().endgametimer = 12 + 1)
+#define	decrendgametimer()	(--getlxstate().endgametimer)
+#define	resetendgametimer()	(getlxstate().endgametimer = 0)
 
 #define	addsoundeffect(sfx)	(state->soundeffects |= 1 << (sfx))
 #define	stopsoundeffect(sfx)	(state->soundeffects &= ~(1 << (sfx)))
@@ -768,9 +749,8 @@ static int canmakemove(creature const *cr, int dir, int flags)
 	if (!(movelaws[floorfrom].chip & DIR_OUT(dir)))
 	    return FALSE;
 	if (leavingmap) {
-	    if (flags & CMM_STARTMOVEMENT)
-		mapbreached() = TRUE;
-	    return TRUE;
+	    mapbreached() = TRUE;
+	    return FALSE;
 	}
 	if (!(movelaws[floorto].chip & DIR_IN(dir)))
 	    return FALSE;
@@ -796,9 +776,8 @@ static int canmakemove(creature const *cr, int dir, int flags)
 	if (!(movelaws[floorfrom].block & DIR_OUT(dir)))
 	    return FALSE;
 	if (leavingmap) {
-	    if (flags & (CMM_STARTMOVEMENT | CMM_PUSHBLOCKSNOW))
-		mapbreached() = TRUE;
-	    return TRUE;
+	    mapbreached() = TRUE;
+	    return FALSE;
 	}
 	if (!(movelaws[floorto].block & DIR_IN(dir)))
 	    return FALSE;
@@ -811,9 +790,8 @@ static int canmakemove(creature const *cr, int dir, int flags)
 	if (!(movelaws[floorfrom].creature & DIR_OUT(dir)))
 	    return FALSE;
 	if (leavingmap) {
-	    if (flags & CMM_STARTMOVEMENT)
-		mapbreached() = TRUE;
-	    return TRUE;
+	    mapbreached() = TRUE;
+	    return FALSE;
 	}
 	if (!(movelaws[floorto].creature & DIR_IN(dir)))
 	    return FALSE;
@@ -1229,10 +1207,6 @@ static int startmovement(creature *cr, int releasing)
 	}
 	return 0;
     }
-    if (mapbreached() && chipisalive()) {
-	removechip(CHIP_COLLIDED, cr);
-	return -1;
-    }
 
     if (floorfrom == CloneMachine || floorfrom == Beartrap)
 	_assert(releasing);
@@ -1359,6 +1333,7 @@ static int endmovement(creature *cr)
 	    if (pedanticmode)
 		if (possession(floor) == 255)
 		    possession(floor) = -1;
+	    /* Intentional fall-through */
 	  case Boots_Ice:
 	  case Boots_Slide:
 	  case Boots_Fire:
@@ -1869,6 +1844,7 @@ static int initgame(gamelogic *logic)
 			  = possession(Boots_Water) = 0;
 
     resetendgametimer();
+    togglestate() = 0;
     couldntmove() = FALSE;
     chippushing() = FALSE;
     chipstuck() = FALSE;
@@ -1894,6 +1870,8 @@ static int advancegame(gamelogic *logic)
     creature   *cr;
 
     setstate(logic);
+
+    mapbreached() = FALSE;
 
     initialhousekeeping();
 
@@ -1948,6 +1926,12 @@ static int advancegame(gamelogic *logic)
 	    resetfloorsounds(TRUE);
 	    return completed() ? +1 : -1;
 	}
+    }
+
+    if (mapbreached())
+    {
+	warn("Attempt to leave map in pedantic Lynx mode");
+	mapbreached() = FALSE;
     }
 
     return 0;

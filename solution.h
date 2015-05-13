@@ -4,8 +4,8 @@
  * under the GNU General Public License. No warranty. See COPYING for details.
  */
 
-#ifndef	_solution_h_
-#define	_solution_h_
+#ifndef	HEADER_solution_h_
+#define	HEADER_solution_h_
 
 #include	"defs.h"
 #include	"fileio.h"

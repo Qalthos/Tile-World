@@ -309,7 +309,7 @@ int readseriesfile(gameseries *series)
 	    return FALSE;
     }
 
-    xalloc(series->games, series->count * sizeof *series->games);
+    x_alloc(series->games, series->count * sizeof *series->games);
     memset(series->games + series->allocated, 0,
 	   (series->count - series->allocated) * sizeof *series->games);
     series->allocated = series->count;
@@ -476,7 +476,7 @@ static int getseriesfile(char *filename, void *data)
 
     if (sdata->count >= sdata->allocated) {
 	sdata->allocated = sdata->count + 1;
-	xalloc(sdata->list, sdata->allocated * sizeof *sdata->list);
+	x_alloc(sdata->list, sdata->allocated * sizeof *sdata->list);
     }
     series = sdata->list + sdata->count;
     series->mapfilename = NULL;
@@ -609,7 +609,7 @@ int createserieslist(char const *preferredfile, gameseries **pserieslist,
 {
     static char const  *rulesetname[Ruleset_Count];
     gameseries	       *serieslist;
-    char	      **ptrs;
+    char const	      **ptrs;
     char	       *textheap;
     int			listsize;
     int			used, col, n, y;

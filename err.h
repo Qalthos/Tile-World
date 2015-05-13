@@ -4,13 +4,13 @@
  * under the GNU General Public License. No warranty. See COPYING for details.
  */
 
-#ifndef	_err_h_
-#define	_err_h_
+#ifndef	HEADER_err_h_
+#define	HEADER_err_h_
 
 /* Simple macros for dealing with memory allocation simply.
  */
 #define	memerrexit()	(die("out of memory"))
-#define	xalloc(p, n)	(((p) = realloc((p), (n))) || (memerrexit(), NULL))
+#define	x_alloc(p, n)	(((p) = realloc((p), (n))) || (memerrexit(), 0))
 
 #ifdef __cplusplus
 extern "C" {
@@ -18,15 +18,15 @@ extern "C" {
 
 /* Log an error message and continue.
  */
-extern void _warn(char const *fmt, ...);
+extern void warn_(char const *fmt, ...);
 
 /* Display an error message.
  */
-extern void _errmsg(char const *prefix, char const *fmt, ...);
+extern void errmsg_(char const *prefix, char const *fmt, ...);
 
 /* Display an error message and abort.
  */
-extern void _die(char const *fmt, ...);
+extern void die_(char const *fmt, ...);
 
 #ifdef __cplusplus
 }
@@ -35,10 +35,10 @@ extern void _die(char const *fmt, ...);
 /* A really ugly hack used to smuggle extra arguments into variadic
  * functions.
  */
-extern char const      *_err_cfile;
-extern unsigned long	_err_lineno;
-#define	warn	(_err_cfile = __FILE__, _err_lineno = __LINE__, _warn)
-#define	errmsg	(_err_cfile = __FILE__, _err_lineno = __LINE__, _errmsg)
-#define	die	(_err_cfile = __FILE__, _err_lineno = __LINE__, _die)
+extern char const      *err_cfile_;
+extern unsigned long	err_lineno_;
+#define	warn	(err_cfile_ = __FILE__, err_lineno_ = __LINE__, warn_)
+#define	errmsg	(err_cfile_ = __FILE__, err_lineno_ = __LINE__, errmsg_)
+#define	die	(err_cfile_ = __FILE__, err_lineno_ = __LINE__, die_)
 
 #endif

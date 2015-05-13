@@ -4,8 +4,8 @@
  * License. No warranty. See COPYING for details.
  */
 
-#ifndef	_gen_h_
-#define	_gen_h_
+#ifndef	HEADER_gen_h_
+#define	HEADER_gen_h_
 
 /* The standard Boolean values.
  */
@@ -32,7 +32,7 @@ typedef	struct tablespec {
     short	cols;		/* number of columns */
     short	sep;		/* amount of space between columns */
     short	collapse;	/* the column to squeeze if necessary */
-    char      **items;		/* the table's contents */
+    char const  **items;	/* the table's contents */
 } tablespec;
 
 /* The dimensions of a level.

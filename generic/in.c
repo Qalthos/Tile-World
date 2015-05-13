@@ -70,7 +70,7 @@ static keycmdmap const gamekeycmds[] = {
     { TWK_KP4,                    0,  0,  0,   CmdWest,               TRUE },
     { TWK_KP2,                    0,  0,  0,   CmdSouth,              TRUE },
     { TWK_KP6,                    0,  0,  0,   CmdEast,               TRUE },
-#ifdef __TWPLUSPLUS
+#ifdef TWPLUSPLUS
     { TWK_ESCAPE,                 0,  0,  0,   CmdQuitLevel,          FALSE },
 #else
     { 'q',                        0,  0,  0,   CmdQuitLevel,          FALSE },
@@ -79,7 +79,7 @@ static keycmdmap const gamekeycmds[] = {
     { 'r',                        0, +1,  0,   CmdSameLevel,          FALSE },
     { 'n',                        0, +1,  0,   CmdNextLevel,          FALSE },
     { 'g',                        0, -1,  0,   CmdGotoLevel,          FALSE },
-#ifndef __TWPLUSPLUS
+#ifndef TWPLUSPLUS
     { 'q',                       +1,  0,  0,   CmdQuit,               FALSE },
 #endif
     { TWK_PAGEUP,                -1, -1,  0,   CmdPrev10,             FALSE },
@@ -89,12 +89,13 @@ static keycmdmap const gamekeycmds[] = {
     { TWK_PAGEDOWN,              -1, -1,  0,   CmdNext10,             FALSE },
     { TWK_BACKSPACE,             -1, -1,  0,   CmdPauseGame,          FALSE },
 /* TEMP disabling help */
-#ifndef __TWPLUSPLUS
+#ifndef TWPLUSPLUS
     { '?',                       -1, -1,  0,   CmdHelp,               FALSE },
     { TWK_F1,                    -1, -1,  0,   CmdHelp,               FALSE },
 #endif
     { 'o',                        0,  0,  0,   CmdStepping,           FALSE },
     { 'o',                       +1,  0,  0,   CmdSubStepping,        FALSE },
+    { 'f',                        0,  0,  0,   CmdRandomFF,           FALSE },
     { TWK_TAB,                    0, -1,  0,   CmdPlayback,           FALSE },
     { TWK_TAB,                   +1, -1,  0,   CmdCheckSolution,      FALSE },
     { 'i',                        0, +1,  0,   CmdPlayback,           FALSE },
@@ -108,6 +109,7 @@ static keycmdmap const gamekeycmds[] = {
     { TWK_RETURN,                -1, -1,  0,   CmdProceed,            FALSE },
     { TWK_KP_ENTER,              -1, -1,  0,   CmdProceed,            FALSE },
     { ' ',                       -1, -1,  0,   CmdProceed,            FALSE },
+#ifndef NDEBUG
     { 'd',                        0,  0,  0,   CmdDebugCmd1,          FALSE },
     { 'd',                       +1,  0,  0,   CmdDebugCmd2,          FALSE },
     { TWK_UP,                    +1,  0,  0,   CmdCheatNorth,         TRUE },
@@ -124,9 +126,10 @@ static keycmdmap const gamekeycmds[] = {
     { TWK_F8,                     0,  0,  0,   CmdCheatBootsSlide,    FALSE },
     { TWK_F9,                     0,  0,  0,   CmdCheatBootsFire,     FALSE },
     { TWK_F10,                    0,  0,  0,   CmdCheatBootsWater,    FALSE },
+#endif
     { TWK_CTRL_C,                -1, -1,  0,   CmdQuit,               FALSE },
     { TWK_F4,                     0,  0, +1,   CmdQuit,               FALSE },
-#ifdef __TWPLUSPLUS
+#ifdef TWPLUSPLUS
 /* "Virtual" keys */
     { TWC_SEESCORES,              0,  0,  0,   CmdSeeScores,          FALSE },
     { TWC_SEESOLUTIONFILES,       0,  0,  0,   CmdSeeSolutionFiles,   FALSE },
@@ -511,7 +514,7 @@ int _genericinputinitialize(void)
  */
 tablespec const *keyboardhelp(int which)
 {
-    static char *ingame_items[] = {
+    static char const *ingame_items[] = {
 	"1-arrows", "1-move Chip",
 	"1-2 4 6 8 (keypad)", "1-also move Chip",
 	"1-Q", "1-quit the current game",
@@ -526,7 +529,7 @@ tablespec const *keyboardhelp(int which)
     };
     static tablespec const keyhelp_ingame = { 11, 2, 4, 1, ingame_items };
 
-    static char *twixtgame_items[] = {
+    static char const *twixtgame_items[] = {
 	"1-P", "1-jump to the previous level",
 	"1-N", "1-jump to the next level",
 	"1-PgUp", "1-skip back ten levels",
@@ -540,16 +543,17 @@ tablespec const *keyboardhelp(int which)
 	"1-Ctrl-S", "1-see the available solution files",
 	"1-O", "1-toggle between even-step and odd-step offset",
 	"1-Shift-O", "1-increment stepping offset (Lynx only)",
+	"1-F", "1-Change initial \"random\" force floor direction (Lynx only)",
 	"1-V", "1-decrease volume",
 	"1-Shift-V", "1-increase volume",
 	"1-Q", "1-return to the file list",
 	"1-Ctrl-C", "1-exit the program",
 	"1-Alt-F4", "1-exit the program"
     };
-    static tablespec const keyhelp_twixtgame = { 18, 2, 4, 1,
+    static tablespec const keyhelp_twixtgame = { 19, 2, 4, 1,
 						 twixtgame_items };
 
-    static char *scorelist_items[] = {
+    static char const *scorelist_items[] = {
 	"1-up down", "1-move selection",
 	"1-PgUp PgDn", "1-scroll selection",
 	"1-Enter Space", "1-select level",
@@ -560,7 +564,7 @@ tablespec const *keyboardhelp(int which)
     };
     static tablespec const keyhelp_scorelist = { 7, 2, 4, 1, scorelist_items };
 
-    static char *scroll_items[] = {
+    static char const *scroll_items[] = {
 	"1-up down", "1-move selection",
 	"1-PgUp PgDn", "1-scroll selection",
 	"1-Enter Space", "1-select",

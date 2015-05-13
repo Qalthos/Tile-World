@@ -1,7 +1,7 @@
 /* res.c: Functions for loading resources from external files.
  *
- * Copyright (C) 2001-2006 by Brian Raiter, under the GNU General Public
- * License. No warranty. See COPYING for details.
+ * Copyright (C) 2001-2014 by Brian Raiter and Eric Schmidt, under the GNU
+ * General Public License. No warranty. See COPYING for details.
  */
 
 #include	<stdlib.h>
@@ -11,6 +11,7 @@
 #include	"fileio.h"
 #include	"err.h"
 #include	"oshw.h"
+#include	"messages.h"
 #include	"unslist.h"
 #include	"res.h"
 
@@ -32,7 +33,8 @@
 
 #define	RES_TXT_BASE		(RES_CLR_LAST + 1)
 #define	RES_TXT_UNSLIST		(RES_TXT_BASE + 0)
-#define	RES_TXT_LAST		RES_TXT_UNSLIST
+#define RES_TXT_MESSAGE		(RES_TXT_BASE + 1)
+#define	RES_TXT_LAST		RES_TXT_MESSAGE
 
 #define	RES_SND_BASE		(RES_TXT_LAST + 1)
 #define	RES_SND_CHIP_LOSES	(RES_SND_BASE + SND_CHIP_LOSES)
@@ -81,7 +83,7 @@ typedef union resourceitem {
 
 /* The complete list of resource names.
  */
-static rcitem rclist[] = {
+static rcitem rclist[RES_COUNT] = {
     { "tileimages",		FALSE },
     { "font",			FALSE },
     { "backgroundcolor",	FALSE },
@@ -89,6 +91,7 @@ static rcitem rclist[] = {
     { "boldtextcolor",		FALSE },
     { "dimtextcolor",		FALSE },
     { "unsolvablelist",		FALSE },
+    { "endmessages",		FALSE },
     { "chipdeathsound",		FALSE },
     { "levelcompletesound",	FALSE },
     { "chipdeathbytimesound",	FALSE },
@@ -164,14 +167,13 @@ static void initresourcedefaults(void)
 static int readrcfile(void)
 {
     resourceitem	item;
-    fileinfo		file;
+    fileinfo		file = {0};
     char		buf[256];
     char		name[256];
     char	       *p;
     int			ruleset;
     int			lineno, i, j;
 
-    memset(&file, 0, sizeof file);
     if (!openfileindir(&file, resdir, "rc", "r", "can't open"))
 	return FALSE;
 
@@ -309,19 +311,20 @@ static int loadfont(void)
 
 /* Load the list of unsolvable levels.
  */
-static int loadunslist(void)
+typedef int (*txtloader)(char const * fname);
+static int loadtxtresource(int resid, txtloader loadfunc)
 {
     char const *filename;
 
-    if (*resources[RES_TXT_UNSLIST].str)
-	filename = resources[RES_TXT_UNSLIST].str;
+    if (*resources[resid].str)
+	filename = resources[resid].str;
     else if (resources != globalresources
-			&& *globalresources[RES_TXT_UNSLIST].str)
-	filename = globalresources[RES_TXT_UNSLIST].str;
+			&& *globalresources[resid].str)
+	filename = globalresources[resid].str;
     else
 	return FALSE;
 
-    return loadunslistfromfile(filename);
+    return loadfunc(filename);
 }
 
 /* Load all of the sound resources.
@@ -379,7 +382,8 @@ int initresources(void)
     resources = allresources[Ruleset_None];
     if (!readrcfile() || !loadcolors() || !loadfont())
 	return FALSE;
-    loadunslist();
+    loadtxtresource(RES_TXT_UNSLIST, loadunslistfromfile);
+    loadtxtresource(RES_TXT_MESSAGE, loadmessagesfromfile);
     return TRUE;
 }
 
@@ -388,7 +392,6 @@ int initresources(void)
 void freeallresources(void)
 {
     int	n;
-
     freefont();
     freetileset();
     clearunslist();

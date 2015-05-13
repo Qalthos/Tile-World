@@ -1,4 +1,4 @@
-/* Copyright (C) 2001-2010 by Madhav Shanbhag,
+/* Copyright (C) 2001-2014 by Madhav Shanbhag and Eric Schmidt,
  * under the GNU General Public License. No warranty. See COPYING for details.
  */
 
@@ -97,6 +97,7 @@ private:
 	void DisplayMapView(const gamestate* pState);
 	void DisplayShutter();
 	void SetSpeed(int nValue);
+        void ReleaseAllKeys();
 	void PulseKey(int nTWKey);
 	int GetTWKeyForAction(QAction* pAction) const;
 	

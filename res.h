@@ -4,8 +4,8 @@
  * License. No warranty. See COPYING for details.
  */
 
-#ifndef	_res_h_
-#define _res_h_
+#ifndef	HEADER_res_h_
+#define HEADER_res_h_
 
 /* The directory containing all the resource files.
  */

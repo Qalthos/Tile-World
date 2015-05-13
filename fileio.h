@@ -4,14 +4,21 @@
  * License. No warranty. See COPYING for details.
  */
 
-#ifndef	_fileio_h_
-#define	_fileio_h_
+#ifndef	HEADER_fileio_h_
+#define	HEADER_fileio_h_
 
 #include	"defs.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /* Reset a fileinfo structure to indicate no file.
  */
 extern void clearfileinfo(fileinfo *file);
+
+/* Determine whether a file exists */
+extern int fileexists(char const * name);
 
 /* Open a file. If the fileinfo structure does not already have a
  * filename assigned to it, name will be used as the filename. If msg
@@ -77,9 +84,11 @@ extern int filegetline(fileinfo *file, char *buf, int *len, char const *msg);
  * "name=value". FALSE is returned if the end of the file is found
  * first.
  */
-extern int filegetconfigline(fileinfo *file, char **name, char **value,
+extern int filegetconfiglineint(fileinfo *file, char const *name, int *value,
 			     char const *msg);
 
+/* Update an integer config line in a file. */
+extern int updateconfiglineint(char const *fname, char const *name, int value); 
 /* Return the maximum size of a legal pathname.
  */
 extern int getpathbufferlen(void);
@@ -140,8 +149,12 @@ extern int findfiles(char const *dir, void *data,
  * otherwise the text pointed to by msg is used. If msg is NULL, the
  * function does nothing. The return value is always FALSE.
  */
-extern int _fileerr(char const *cfile, unsigned long lineno,
+extern int fileerr_(char const *cfile, unsigned long lineno,
 		    fileinfo *file, char const *msg);
-#define	fileerr(file, msg)	(_fileerr(__FILE__, __LINE__, (file), (msg)))
+#define	fileerr(file, msg)	(fileerr_(__FILE__, __LINE__, (file), (msg)))
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

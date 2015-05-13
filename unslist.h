@@ -4,8 +4,8 @@
  * License. No warranty. See COPYING for details.
  */
 
-#ifndef	_unslist_h_
-#define	_unslist_h_
+#ifndef	HEADER_unslist_h_
+#define	HEADER_unslist_h_
 
 #include	"defs.h"
 

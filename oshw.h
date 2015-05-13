@@ -4,8 +4,8 @@
  * under the GNU General Public License. No warranty. See COPYING for details.
  */
 
-#ifndef	_oshw_h_
-#define	_oshw_h_
+#ifndef	HEADER_oshw_h_
+#define	HEADER_oshw_h_
 
 #include	<stdarg.h>
 #include	"gen.h"
@@ -140,10 +140,10 @@ OSHW_EXTERN void freetileset(void);
 
 /* The font provides special monospaced digit characters at 144-153.
  */
-#ifndef __TWPLUSPLUS
-	enum { CHAR_MZERO = 144 };
+#ifndef TWPLUSPLUS
+        enum { CHAR_MZERO = 144 };
 #else
-	enum { CHAR_MZERO = '0' };
+        enum { CHAR_MZERO = '0' };
 #endif
 
 /*

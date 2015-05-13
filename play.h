@@ -4,8 +4,8 @@
  * under the GNU General Public License. No warranty. See COPYING for details.
  */
 
-#ifndef	_play_h_
-#define	_play_h_
+#ifndef	HEADER_play_h_
+#define	HEADER_play_h_
 
 #include	"defs.h"
 
@@ -43,6 +43,8 @@ extern int prepareplayback(void);
 
 extern int setstepping(int stepping, int display);
 extern int changestepping(int delta, int display);
+
+extern void advanceinitrandomff(int display);
 
 /* Return the amount of time passed in the current game, in seconds.
  */

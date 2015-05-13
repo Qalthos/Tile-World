@@ -4,8 +4,8 @@
  * License. No warranty. See COPYING for details.
  */
 
-#ifndef	_series_h_
-#define	_series_h_
+#ifndef	HEADER_series_h_
+#define	HEADER_series_h_
 
 #include	"defs.h"
 

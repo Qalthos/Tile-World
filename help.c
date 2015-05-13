@@ -13,17 +13,18 @@
 #include	"comptime.h"
 #include	"help.h"
 
-#define	array(a)	a, (sizeof a / sizeof *a)
+#define COUNTOF(a)	(sizeof(a) / sizeof(*a))
+#define	ARRAY(a)	a, COUNTOF(a)
 
 /* Help for command-line options.
  */
-static char *yowzitch_items[] = {
+static char const *yowzitch_items[] = {
     "1-Usage:", "1!tworld [-hvVdlsbtpqrPFa] [-n N] [-DLRS DIR] "
 		"[NAME] [SNAME] [LEVEL]",
     "1-   -D", "1!Read data files from DIR instead of the default.",
     "1-   -L", "1!Read level sets from DIR instead of the default.",
     "1-   -R", "1!Read resource files from DIR instead of the default.",
-    "1-   -S", "1!Save games in DIR instead of the default.",
+    "1-   -S", "1!Save games and settings in DIR instead of the default.",
     "1-   -p", "1!Disable password checking.",
     "1-   -F", "1!Run in fullscreen mode.",
     "1-   -q", "1!Run quietly.",
@@ -48,9 +49,10 @@ tablespec const *yowzitch = &yowzitch_table;
 
 /* Version and license information.
  */
-static char *vourzhon_items[] = {
+static char const *vourzhon_items[] = {
     "1+*", "1-Tile World: version " VERSION,
-    "1+",  "1-Copyright (c) 2001-2010 by Brian Raiter and Madhav Shanbhag",
+    "1+",  "1-Copyright (c) 2001-2014 by Brian Raiter, Madhav Shanbhag, and"
+    	   " Eric Schmidt",
     "1+",  "1-compiled " COMPILE_TIME,
     "1+*", "1!This program is free software; you can redistribute it and/or"
 	   " modify it under the terms of the GNU General Public License as"
@@ -61,11 +63,7 @@ static char *vourzhon_items[] = {
 	   " warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR"
 	   " PURPOSE. See the GNU General Public License for more details.",
     "1+*", "1!Bug reports are appreciated, and can be sent to"
-#ifdef __TWPLUSPLUS
-	   " CrapulentCretin@Yahoo.com."
-#else
-	   " breadbox@muppetlabs.com."
-#endif
+           " eric41293@comcast.net or CrapulentCretin@Yahoo.com."
 };
 static tablespec const vourzhon_table = { 6, 2, 1, -1, vourzhon_items };
 tablespec const *vourzhon = &vourzhon_table;
@@ -189,11 +187,11 @@ int gameplayhelp(void)
 {
     int	ret;
 
-    ret  = helptilescreen("FLOORS", array(help_floors), +1)
-	&& helptilescreen("WALLS", array(help_walls), +1)
-	&& helptilescreen("OBJECTS", array(help_objects), +1)
-	&& helptilescreen("TOOLS", array(help_tools), +1)
-	&& helptilescreen("MONSTERS", array(help_monsters), 0);
+    ret  = helptilescreen("FLOORS", ARRAY(help_floors), +1)
+	&& helptilescreen("WALLS", ARRAY(help_walls), +1)
+	&& helptilescreen("OBJECTS", ARRAY(help_objects), +1)
+	&& helptilescreen("TOOLS", ARRAY(help_tools), +1)
+	&& helptilescreen("MONSTERS", ARRAY(help_monsters), 0);
 
     cleardisplay();
     return ret;
@@ -224,7 +222,7 @@ static int scrollinputcallback(int *move)
  */
 void onlinemainhelp(int topic)
 {
-    static char *items[] = {
+    static char const *items[] = {
 	"2-",
 	"1+\267", "1-Key commands during the game",
 	"1+\267", "1-Key commands inbetween games",
@@ -261,11 +259,11 @@ void onlinemainhelp(int topic)
 	    anykey();
 	    break;
 	  case 2:
-	    (void)(helptilescreen("FLOORS", array(help_floors), +1)
-		&& helptilescreen("WALLS", array(help_walls), +1)
-		&& helptilescreen("OBJECTS", array(help_objects), +1)
-		&& helptilescreen("TOOLS", array(help_tools), +1)
-		&& helptilescreen("MONSTERS", array(help_monsters), 0));
+	    (void)(helptilescreen("FLOORS", ARRAY(help_floors), +1)
+		&& helptilescreen("WALLS", ARRAY(help_walls), +1)
+		&& helptilescreen("OBJECTS", ARRAY(help_objects), +1)
+		&& helptilescreen("TOOLS", ARRAY(help_tools), +1)
+		&& helptilescreen("MONSTERS", ARRAY(help_monsters), 0));
 	    break;
 	  case 3:
 	    displaytable("COMMAND-LINE OPTIONS", &yowzitch_table, -1);
@@ -285,7 +283,7 @@ void onlinemainhelp(int topic)
  */
 void onlinecontexthelp(int topic)
 {
-    static char *firsthelp_items[] = {
+    static char const *firsthelp_items[] = {
 	"1!Welcome to Tile World!",
 	"1-",
 	"1!In order to begin, you must first decide which level set you"

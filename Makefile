@@ -10,7 +10,6 @@ TWORLD = tworld
 ifneq ($(findstring qt,$(OSHW)),)
 
 TWORLD = tworld2
-LINK = $(CXX)
 
 ifdef QTDIR
 	LOADLIBES += -L$(QTDIR)/lib
@@ -44,7 +43,7 @@ endif
 
 OBJS = \
 tworld.o series.o play.o encoding.o solution.o res.o lxlogic.o mslogic.o \
-unslist.o help.o score.o random.o cmdline.o fileio.o err.o lib$(OSHW).a
+unslist.o messages.o help.o score.o random.o cmdline.o settings.o fileio.o err.o lib$(OSHW).a
 
 ifeq ($(OSTYPE),windows)
 	RESOURCES = tworldres.o
@@ -69,20 +68,22 @@ mklynxcc$(EXE): mklynxcc.c
 #
 
 tworld.o   : tworld.c defs.h gen.h err.h series.h res.h play.h score.h \
-             solution.h fileio.h help.h oshw.h cmdline.h ver.h
+             solution.h fileio.h settings.h help.h oshw.h cmdline.h ver.h
 series.o   : series.c series.h defs.h gen.h err.h fileio.h solution.h
 play.o     : play.c play.h defs.h gen.h err.h state.h random.h oshw.h res.h \
              logic.h solution.h fileio.h
 encoding.o : encoding.c encoding.h defs.h gen.h err.h state.h
 solution.o : solution.c solution.h defs.h gen.h err.h fileio.h
-res.o      : res.c res.h defs.h gen.h fileio.h err.h oshw.h
+res.o      : res.c res.h messages.h unslist.h defs.h gen.h fileio.h err.h oshw.h
 lxlogic.o  : lxlogic.c logic.h defs.h gen.h err.h state.h random.h
 mslogic.o  : mslogic.c logic.h defs.h gen.h err.h state.h random.h
 unslist.o  : unslist.c unslist.h gen.h err.h fileio.h
+messages.o : messages.cpp messages.h fileio.h res.h defs.h gen.h err.h
 help.o     : help.c help.h defs.h gen.h state.h oshw.h ver.h comptime.h
 score.o    : score.c score.h defs.h gen.h err.h play.h
 random.o   : random.c random.h defs.h gen.h
 cmdline.o  : cmdline.c cmdline.h gen.h
+settings.o : settings.cpp settings.h fileio.h defs.h err.h
 fileio.o   : fileio.c fileio.h defs.h gen.h err.h
 err.o      : err.c oshw.h err.h
 

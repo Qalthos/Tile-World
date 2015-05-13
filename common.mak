@@ -24,15 +24,15 @@ else
 	CP   = cp
 endif
 
-LINK = $(CC)
+LINK = $(CXX)
 
 
-COMMONFLAGS = -Wall -I. -DNDEBUG
+COMMONFLAGS = -Wall -O2 -I. -DNDEBUG
 ifneq ($(OSTYPE),windows)
-	COMMONFLAGS += '-DROOTDIR="$(sharedir)"'
+	COMMONFLAGS += '-DROOTDIR="$(sharedir)"' -Dstricmp=strcasecmp
 endif
 ifneq ($(findstring qt,$(OSHW)),)
-	COMMONFLAGS += -D__TWPLUSPLUS
+        COMMONFLAGS += -DTWPLUSPLUS
 endif
 
 CFLAGS += $(COMMONFLAGS)

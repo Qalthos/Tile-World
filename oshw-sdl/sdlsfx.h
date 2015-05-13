@@ -5,8 +5,8 @@
  * under the GNU General Public License. No warranty. See COPYING for details.
  */
 
-#ifndef	_sdlsfx_h_
-#define	_sdlsfx_h_
+#ifndef	HEADER_sdlsfx_h_
+#define	HEADER_sdlsfx_h_
 
 #include	"../gen.h"
 #include	"../oshw.h"
